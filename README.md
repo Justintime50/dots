@@ -84,10 +84,16 @@ dots_push
 # Pull new Dotfile changes
 dots_pull
 
+# Install Dotfiles (uses `up` function in dots-config.sh)
+dots_install
+
+# Source all new Dotfiles
+dots_bounce
+
 # Pull/install/source Dotfile changes (recommended)
 dots_sync
 
-# Clean Dotfiles
+# Clean Dotfiles (uses `down` function in dots-config.sh)
 dots_clean
 
 # To update Dots once it's a submodule in your Dotfiles project, run the following
