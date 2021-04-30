@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.2.0 (2021-04-30)
+
+* Added installation script to assist with getting started with Dots
+* Changed `dots_bounce` to `dots_source` to source the shell
+* Removes the cloning functionality as it will never be used
+* Various code refactors
+* Updated documentation surrounding installation
+
 ## v0.1.0 (2021-04-30)
 
 * Initial release

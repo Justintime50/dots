@@ -25,22 +25,18 @@ To install Dots, simply drop it into your current Dotfiles project like so:
 
 * If installing Dots into your current Dotfiles project, follow step `1a`.
 * If installing your Dotfiles on a new machine (assumes Dots is already in your Dotfiles project), follow step `1b`.
-* Regardless of step 1, run steps 2 and 3.
+* Regardless of which part of step 1 you follow, run steps 2.
 
 ```bash
 # 1a) Add Dots as a git submodule in your Dotfiles project
 git submodule add https://github.com/Justintime50/dots.git
 
-# 1b) # Clone your Dotfiles and update the submodule
+# 1b) Clone your Dotfiles and initialize the Dots submodule (replace USERNAME)
 git clone https://github.com/USERNAME/dotfiles.git "$HOME/.dotfiles"
-git -C "$HOME/.dotfiles" submodule init
-git -C "$HOME/.dotfiles" submodule update
+git -C "$HOME/.dotfiles" submodule init && git -C "$HOME/.dotfiles" submodule update
 
-# 2) Add Dots as a sourced script to your current shell config
-echo ". $HOME/.dotfiles/dots/src/dots.sh" >> "$HOME/.zshrc"
-
-# 3) Run `dots_sync` the first time specifying the DOTFILES_URL of your project
-exec "$SHELL" && DOTFILES_URL="https://github.com/USERNAME/dotfiles.git" dots_sync
+# 2) Install Dots (param 1 is the URL of your Dotfiles project, param 2 is your shell config file such as `.zshrc` or `.bash_profile`)
+$HOME/.dotfiles/dots/src/install.sh https://github.com/USERNAME/dotfiles.git .zshrc
 ```
 
 ## Configuration
@@ -97,7 +93,7 @@ dots_pull
 dots_install
 
 # Source all new Dotfiles
-dots_bounce
+dots_source
 
 # Pull/install/source Dotfile changes (recommended)
 dots_sync
@@ -106,5 +102,5 @@ dots_sync
 dots_clean
 
 # To update Dots once it's a submodule in your Dotfiles project, run the following
-git submodule foreach git pull origin main
+git submodule update --remote dots
 ```
