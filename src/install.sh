@@ -6,7 +6,7 @@ DOTFILES_DIR="$HOME/.dotfiles"
 SHELL_CONFIG_FILE="$HOME/$2"
 
 main() {
-    if [[ -z "$1" && -z "$2" ]] ; then
+    if [[ -n "$1" && -n "$2" ]] ; then
         # Add Dots as a sourced script to your current shell config
         echo ". $DOTFILES_DIR/dots/src/dots.sh" >> "$SHELL_CONFIG_FILE"
         echo ". $DOTFILES_DIR/dots-config.sh" >> "$SHELL_CONFIG_FILE"
