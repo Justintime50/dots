@@ -33,7 +33,7 @@ git submodule add https://github.com/Justintime50/dots.git
 
 # 1b) # Clone your Dotfiles and update the submodule
 git clone https://github.com/USERNAME/dotfiles.git "$HOME/.dotfiles"
-git submodule update
+cd "$HOME/.dotfiles" && git submodule update
 
 # 2) Add Dots as a sourced script to your current shell config
 echo ". $HOME/.dotfiles/dots/src/dots.sh" >> "$HOME/.zshrc"
