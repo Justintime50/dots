@@ -89,4 +89,7 @@ dots_sync
 
 # Clean Dotfiles
 dots_clean
+
+# To update Dots once it's a submodule in your Dotfiles project, run the following
+git submodule foreach git pull origin main
 ```
