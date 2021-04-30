@@ -66,11 +66,11 @@ dots_reset_terminal_config() {
 	local shell_config_file
 	
 	if [[ "$SHELL" == "/bin/zsh" ]] ; then
-		shell_config_file = "$HOME/.zshrc"
-		rm shell_config_file
+		shell_config_file="$HOME/.zshrc"
+		rm "$shell_config_file"
 	elif [[ "$SHELL" == "/bin/bash" ]] ; then
-		shell_config_file = "$HOME/.bash_profile"
-		rm shell_config_file
+		shell_config_file="$HOME/.bash_profile"
+		rm "$shell_config_file"
 	fi
 
 	if [[ "$SHELL" == "/bin/zsh" || "$SHELL" == "/bin/bash" ]] ; then
@@ -82,7 +82,7 @@ dots_reset_terminal_config() {
 			echo "dots_init_message";
 			echo "";
 			echo "# Dotfiles Config";
-		} >> shell_config_file
+		} >> "$shell_config_file"
 	fi
 }
 
