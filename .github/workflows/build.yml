@@ -8,5 +8,19 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-      - name: Run ShellCheck
+      - name: Run ShellCheck for bash
         uses: ludeeus/action-shellcheck@1.0.0
+        env:
+          SHELLCHECK_OPTS: -s bash
+      - name: Run ShellCheck for sh
+        uses: ludeeus/action-shellcheck@1.0.0
+        env:
+          SHELLCHECK_OPTS: -s sh
+      - name: Run ShellCheck for dash
+        uses: ludeeus/action-shellcheck@1.0.0
+        env:
+          SHELLCHECK_OPTS: -s dash
+      - name: Run ShellCheck for ksh
+        uses: ludeeus/action-shellcheck@1.0.0
+        env:
+          SHELLCHECK_OPTS: -s ksh
