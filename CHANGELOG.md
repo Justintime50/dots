@@ -3,6 +3,7 @@
 ## v0.3.0 (2021-05-03)
 
 * Lints project and makes it compatible with all shells (sh, bash, dash, ksh)
+* Replaces `exec $SHELL` with `. $SHELL_CONFIG_FILE` (closes #1)
 
 ## v0.2.0 (2021-04-30)
 
