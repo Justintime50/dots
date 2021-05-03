@@ -28,6 +28,12 @@ dots_check_shell() {
 
 # Print Dotfiles message on each shell start (will be initialized from core shell file)
 dots_init_message() {
+	if [ "$SHELL" = "/bin/zsh" ] ; then
+		SHELL_CONFIG_FILE="$HOME/.zshrc"
+	elif [ "$SHELL" = "/bin/bash" ] ; then
+		SHELL_CONFIG_FILE="$HOME/.bash_profile"
+	fi
+
 	echo "#################### $SHELL ####################"
 	dots_check_shell
 	echo "Hostname: $HOSTNAME"
@@ -63,13 +69,7 @@ dots_pull() {
 
 # Resets the .zshrc/.bash_profile files to only contain Dots and the config
 dots_reset_terminal_config() {
-	if [ "$SHELL" = "/bin/zsh" ] ; then
-		SHELL_CONFIG_FILE="$HOME/.zshrc"
-		rm "$SHELL_CONFIG_FILE"
-	elif [ "$SHELL" = "/bin/bash" ] ; then
-		SHELL_CONFIG_FILE="$HOME/.bash_profile"
-		rm "$SHELL_CONFIG_FILE"
-	fi
+	rm "$SHELL_CONFIG_FILE"
 
 	if [ "$SHELL" = "/bin/zsh" ] || [ "$SHELL" = "/bin/bash" ] ; then
 		{
@@ -120,6 +120,5 @@ dots_sync() {
 
 # Sources the shell
 dots_source() {
-	exec "$SHELL"
+	. "$SHELL_CONFIG_FILE"
 }
-dots_sync
