@@ -11,7 +11,7 @@ DOTFILES_GITHUB_USER="$(basename "$(dirname "$DOTFILES_URL")")" # Dynamically fi
 
 # Checks that dotfiles are up to date each time a terminal starts
 dots_get_dotfiles_status() {
-	if [[ -d "$DOTFILES_DIR" ]] ; then
+	if [ -d "$DOTFILES_DIR" ] ; then
 		git -C "$DOTFILES_DIR" remote update > /dev/null 2>&1 || echo "Error updating from remote Dotfiles"
 		git -C "$DOTFILES_DIR" status -s -b || echo "Couldn't check remote Dotfiles"
 	else
@@ -21,7 +21,7 @@ dots_get_dotfiles_status() {
 
 # Ensures the shell being used is supported, warns if not
 dots_check_shell() {
-	if [[ "$SHELL" != "/bin/zsh" && "$SHELL" != "/bin/bash" ]] ; then
+	if [ "$SHELL" != "/bin/zsh" ] && [ "$SHELL" != "/bin/bash" ] ; then
 		echo "Dots doesn't support $SHELL."
 	fi
 }
@@ -40,7 +40,7 @@ dots_init_message() {
 
 # Push Dotfiles up to the Git server
 dots_push() {
-	if [[ -d "$DOTFILES_DIR" ]] ; then
+	if [ -d "$DOTFILES_DIR" ] ; then
 		git -C "$DOTFILES_DIR" add .
 		git -C "$DOTFILES_DIR" commit -m "Updated dotfiles"
 		git -C "$DOTFILES_DIR" push > /dev/null 2>&1 && echo "Dotfiles pushed!" || echo "Error pushing Dotfiles"
@@ -52,9 +52,9 @@ dots_push() {
 # Pull updates from the Dotfiles project
 dots_pull() {	
     echo "Installing dotfiles..."
-    if [[ -d "$DOTFILES_DIR" ]] ; then
+    if [ -d "$DOTFILES_DIR" ] ; then
 		echo "Dots will pull updated Dotfiles. Be aware that this will override current Dotfiles. Press any key to continue."
-		read -rn 1
+		read -r
         git -C "$DOTFILES_DIR" pull > /dev/null 2>&1 && echo "Dotfiles pulled!" || echo "Error pulling Dotfiles"
     else
 		echo "Dotfiles directory does not exist."
@@ -63,17 +63,15 @@ dots_pull() {
 
 # Resets the .zshrc/.bash_profile files to only contain Dots and the config
 dots_reset_terminal_config() {
-	local shell_config_file
-	
-	if [[ "$SHELL" == "/bin/zsh" ]] ; then
-		shell_config_file="$HOME/.zshrc"
-		rm "$shell_config_file"
-	elif [[ "$SHELL" == "/bin/bash" ]] ; then
-		shell_config_file="$HOME/.bash_profile"
-		rm "$shell_config_file"
+	if [ "$SHELL" = "/bin/zsh" ] ; then
+		SHELL_CONFIG_FILE="$HOME/.zshrc"
+		rm "$SHELL_CONFIG_FILE"
+	elif [ "$SHELL" = "/bin/bash" ] ; then
+		SHELL_CONFIG_FILE="$HOME/.bash_profile"
+		rm "$SHELL_CONFIG_FILE"
 	fi
 
-	if [[ "$SHELL" == "/bin/zsh" || "$SHELL" == "/bin/bash" ]] ; then
+	if [ "$SHELL" = "/bin/zsh" ] || [ "$SHELL" = "/bin/bash" ] ; then
 		{
 			echo "# Dots Config";
 			echo "DOTFILES_URL=\"$DOTFILES_URL\"";
@@ -82,13 +80,13 @@ dots_reset_terminal_config() {
 			echo "dots_init_message";
 			echo "";
 			echo "# Dotfiles Config";
-		} >> "$shell_config_file"
+		} >> "$SHELL_CONFIG_FILE"
 	fi
 }
 
 # Installs the newly pulled dotfiles
 dots_install() {
-	if [[ -f "$DOTS_CONFIG_FILE" ]] ; then
+	if [ -f "$DOTS_CONFIG_FILE" ] ; then
 		dots_reset_terminal_config
 
 		# This command is sourced from "$DOTS_CONFIG_FILE":
@@ -100,7 +98,7 @@ dots_install() {
 
 # Cleans dotfiles
 dots_clean() {
-	if [[ -f "$DOTS_CONFIG_FILE" ]] ; then
+	if [ -f "$DOTS_CONFIG_FILE" ] ; then
 		dots_reset_terminal_config
 
 		# This command is sourced from "$DOTS_CONFIG_FILE":
@@ -124,3 +122,4 @@ dots_sync() {
 dots_source() {
 	exec "$SHELL"
 }
+dots_sync

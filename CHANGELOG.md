@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.3.0 (2021-05-03)
+
+* Lints project and makes it compatible with all shells (sh, bash, dash, ksh)
+
 ## v0.2.0 (2021-04-30)
 
 * Added installation script to assist with getting started with Dots
