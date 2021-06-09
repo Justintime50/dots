@@ -5,6 +5,7 @@
 The simple, flexible Dotfile manager.
 
 [![Build Status](https://github.com/Justintime50/dots/workflows/build/badge.svg)](https://github.com/Justintime50/dots/actions)
+[![Version](https://img.shields.io/github/v/tag/Justintime50/dots)](https://github.com/Justintime50/dots/releases)
 [![Licence](https://img.shields.io/github/license/justintime50/dots)](LICENSE)
 
 <img src="assets/showcase.png" alt="Showcase">
@@ -100,6 +101,9 @@ dots_sync
 
 # Clean Dotfiles (uses `down` function in dots-config.sh)
 dots_clean
+
+# Get the status of the dotfiles
+dots_status
 
 # To update Dots once it's a submodule in your Dotfiles project, run the following
 git submodule update --remote dots

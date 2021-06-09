@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.4.0 (2021-06-09)
+
+* Adds `dots_status` function to get the status of the dotfiles
+
 ## v0.3.0 (2021-05-03)
 
 * Lints project and makes it compatible with all shells (sh, bash, dash, ksh)
