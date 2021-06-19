@@ -12,7 +12,6 @@ DOTFILES_GITHUB_USER="$(basename "$(dirname "$DOTFILES_URL")")" # Dynamically fi
 # Checks that dotfiles are up to date each time a terminal starts
 dots_get_dotfiles_status() {
 	if [ -d "$DOTFILES_DIR" ] ; then
-		git -C "$DOTFILES_DIR" remote update > /dev/null 2>&1 || echo "Error updating from remote Dotfiles"
 		dots_status
 	else
 		echo "Dotfiles directory does not exist."
@@ -110,6 +109,7 @@ dots_clean() {
 
 # Gets the status of dotfiles
 dots_status() {
+    git -C "$DOTFILES_DIR" remote update > /dev/null 2>&1 || echo "Error updating from remote Dotfiles"
     git -C "$DOTFILES_DIR" status -s -b || echo "Couldn't check remote Dotfiles"
 }
 

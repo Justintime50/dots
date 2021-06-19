@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.4.1 (2021-06-19)
+
+* Shifted remote status update to new `dots_status` function as it was unintentionally left behind
+
 ## v0.4.0 (2021-06-09)
 
 * Adds `dots_status` function to get the status of the dotfiles
