@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.5.1 (2021-07-22)
+
+* Shuffled messages around and added more for better feedback to the user
+
 ## v0.5.0 (2021-07-22)
 
 * Made showing the Dots message on shell start optional (default: true)
