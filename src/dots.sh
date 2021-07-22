@@ -1,10 +1,15 @@
 # shellcheck disable=SC1090,SC2148,SC2269
 
-HOSTNAME=$(hostname) # Required for macOS
+# User configurable variables
 DOTFILES_DIR="$HOME/.dotfiles"
+SHOW_INIT_MESSAGE="true" # Leave this empty if you don't want to show the init messages (eg: SHOW_INIT_MESSAGE=)
+
+# Dots required variables (do not edit)
+DOTS_VERSION="v0.5.0"
+HOSTNAME=$(hostname) # Required for macOS
 DOTS_SCRIPT="$DOTFILES_DIR/dots/src/dots.sh"
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
-DOTFILES_URL="$DOTFILES_URL"
+DOTFILES_URL="$DOTFILES_URL" # Yes, we recursively set this here because of our loop sourcing
 DOTFILES_GITHUB_USER="$(basename "$(dirname "$DOTFILES_URL")")" # Dynamically fill this based on the dotfiles URL
 
 # TODO: Add a function that allows you to see what dotfiles were linked
@@ -25,17 +30,21 @@ dots_check_shell() {
 	fi
 }
 
-# Print Dotfiles message on each shell start (will be initialized from core shell file)
-dots_init_message() {
-	if [ "$SHELL" = "/bin/zsh" ] ; then
+# Anything that Dots needs upon initialization goes here
+dots_init() {
+    if [ "$SHELL" = "/bin/zsh" ] ; then
 		SHELL_CONFIG_FILE="$HOME/.zshrc"
 	elif [ "$SHELL" = "/bin/bash" ] ; then
 		SHELL_CONFIG_FILE="$HOME/.bash_profile"
 	fi
+}
 
+# Print Dotfiles message on each shell start (will be initialized from core shell file)
+dots_init_message() {
 	echo "#################### $SHELL ####################"
 	dots_check_shell
 	echo "Hostname: $HOSTNAME"
+    echo "Dots $DOTS_VERSION"
 	echo "Powered by $DOTFILES_GITHUB_USER's Dotfiles"
 	echo ""
 	echo "Dotfiles status: "
@@ -76,7 +85,10 @@ dots_reset_terminal_config() {
 			echo "DOTFILES_URL=\"$DOTFILES_URL\"";
 			echo ". $DOTS_SCRIPT";
 			echo ". $DOTS_CONFIG_FILE";
-			echo "dots_init_message";
+            echo "dots_init"
+            if [ "$SHOW_INIT_MESSAGE" ] ; then
+			    echo "dots_init_message";
+            fi
 			echo "";
 			echo "# Dotfiles Config";
 		} >> "$SHELL_CONFIG_FILE"
@@ -113,11 +125,9 @@ dots_status() {
     git -C "$DOTFILES_DIR" status -s -b || echo "Couldn't check remote Dotfiles"
 }
 
+# Syncs dotfiles from your local machine to and from your dotfiles repo
 dots_sync() {
-	# TODO: Do we want to push as a first step?
-	# 1. Pull new dotfiles
-	# 2. Install the dotfiles based on user config
-	# 3. Source the new Dotfiles
+    dots_push
 	dots_pull
 	dots_install
 	dots_source
