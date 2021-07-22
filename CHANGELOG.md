@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.5.2 (2021-07-22)
+
+* Fixes odd indentation errors
+
 ## v0.5.1 (2021-07-22)
 
 * Shuffled messages around and added more for better feedback to the user
