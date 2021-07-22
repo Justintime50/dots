@@ -5,7 +5,7 @@ DOTFILES_DIR="$HOME/.dotfiles"
 SHOW_INIT_MESSAGE="true" # Leave this empty if you don't want to show the init messages (eg: SHOW_INIT_MESSAGE=)
 
 # Dots required variables (do not edit)
-DOTS_VERSION="v0.5.0"
+DOTS_VERSION="v0.5.1"
 HOSTNAME=$(hostname) # Required for macOS
 DOTS_SCRIPT="$DOTFILES_DIR/dots/src/dots.sh"
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
@@ -55,6 +55,7 @@ dots_init_message() {
 # Push Dotfiles up to the Git server
 dots_push() {
 	if [ -d "$DOTFILES_DIR" ] ; then
+        echo "Pushing dotfiles..."
 		git -C "$DOTFILES_DIR" add .
 		git -C "$DOTFILES_DIR" commit -m "Updated dotfiles"
 		git -C "$DOTFILES_DIR" push > /dev/null 2>&1 && echo "Dotfiles pushed!" || echo "Error pushing Dotfiles"
@@ -65,10 +66,8 @@ dots_push() {
 
 # Pull updates from the Dotfiles project
 dots_pull() {	
-    echo "Installing dotfiles..."
     if [ -d "$DOTFILES_DIR" ] ; then
-		echo "Dots will pull updated Dotfiles. Be aware that this will override current Dotfiles. Press any key to continue."
-		read -r
+        echo "Pulling dotfiles..."
         git -C "$DOTFILES_DIR" pull > /dev/null 2>&1 && echo "Dotfiles pulled!" || echo "Error pulling Dotfiles"
     else
 		echo "Dotfiles directory does not exist."
@@ -99,8 +98,9 @@ dots_reset_terminal_config() {
 dots_install() {
 	if [ -f "$DOTS_CONFIG_FILE" ] ; then
 		dots_reset_terminal_config
+        echo "Installing dotfiles..."
 
-		# This command is sourced from "$DOTS_CONFIG_FILE":
+		# The `dots_config_up` command is sourced from "$DOTS_CONFIG_FILE":
 		dots_config_up && echo "Dotfiles installed!" || echo "Error installing Dotfiles"
 	else
 		echo "Dots couldn't find $DOTS_CONFIG_FILE."
@@ -111,8 +111,9 @@ dots_install() {
 dots_clean() {
 	if [ -f "$DOTS_CONFIG_FILE" ] ; then
 		dots_reset_terminal_config
+        echo "Cleaning dotfiles..."
 
-		# This command is sourced from "$DOTS_CONFIG_FILE":
+		# The `dots_config_down` command is sourced from "$DOTS_CONFIG_FILE":
 		dots_config_down && echo "Dotfiles cleaned!" || echo "Error cleaning Dotfiles"
 	else
 		echo "Dots couldn't find $DOTS_CONFIG_FILE."
@@ -127,6 +128,8 @@ dots_status() {
 
 # Syncs dotfiles from your local machine to and from your dotfiles repo
 dots_sync() {
+    echo "Dots is about to sync your Dotfiles, this process may override your current Dotfiles. Press any key to continue."
+    read -r
     dots_push
 	dots_pull
 	dots_install
@@ -136,4 +139,5 @@ dots_sync() {
 # Sources the shell
 dots_source() {
 	. "$SHELL_CONFIG_FILE"
+    echo "Dotfiles sourced!"
 }
