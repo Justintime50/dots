@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.5.0 (2021-07-22)
+
+* Made showing the Dots message on shell start optional (default: true)
+* `dots_sync` now attempts to push before pulling, if you cannot reliably sync dotfiles due to conflicts, you can run the intermediate manual steps (push/pull, etc) first
+* Added the Dots version number to the init message
+* Clarified documentation
+
 ## v0.4.1 (2021-06-19)
 
 * Shifted remote status update to new `dots_status` function as it was unintentionally left behind
