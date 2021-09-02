@@ -5,7 +5,7 @@ DOTFILES_DIR="$HOME/.dotfiles"
 SHOW_INIT_MESSAGE="true" # Leave this empty if you don't want to show the init messages (eg: SHOW_INIT_MESSAGE=)
 
 # Dots required variables (do not edit)
-DOTS_VERSION="v0.6.0"
+DOTS_VERSION="v0.6.1"
 HOSTNAME=$(hostname) # Required for macOS
 DOTS_SCRIPT="$DOTFILES_DIR/dots/src/dots.sh"
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
@@ -26,12 +26,14 @@ dots_get_dotfiles_status() {
 # Ensures the shell being used is supported, warns if not
 dots_check_shell() {
     if [ "$SHELL" != "/bin/zsh" ] && [ "$SHELL" != "/bin/bash" ] ; then
-        echo "Dots doesn't support $SHELL."
+        echo "Dots doesn't support $SHELL." && exit 1
     fi
 }
 
 # Anything that Dots needs upon initialization goes here
 dots_init() {
+    dots_check_shell
+
     if [ "$SHELL" = "/bin/zsh" ] ; then
        SHELL_CONFIG_FILE="$HOME/.zshrc"
     elif [ "$SHELL" = "/bin/bash" ] ; then
@@ -42,7 +44,6 @@ dots_init() {
 # Print Dotfiles message on each shell start (will be initialized from core shell file)
 dots_init_message() {
     echo "################### Dots $DOTS_VERSION ###################"
-    dots_check_shell
     echo "Shell: $SHELL"
     echo "Hostname: $HOSTNAME"
     echo "Powered by $DOTFILES_GITHUB_USER's Dotfiles"
@@ -76,7 +77,7 @@ dots_pull() {
 
 # Resets the .zshrc/.bash_profile files to only contain Dots and the config
 dots_reset_terminal_config() {
-    rm "$SHELL_CONFIG_FILE"
+    dots_init # We initialize Dots here to properly set $SHELL_CONFIG_FILE
 
     if [ "$SHELL" = "/bin/zsh" ] || [ "$SHELL" = "/bin/bash" ] ; then
         {
@@ -90,7 +91,7 @@ dots_reset_terminal_config() {
             fi
             echo "";
             echo "# Dotfiles Config";
-        } >> "$SHELL_CONFIG_FILE"
+        } > "$SHELL_CONFIG_FILE"
     fi
 }
 
