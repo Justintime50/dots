@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.6.0 (2021-09-01)
+
+* Swaps the order in `dots_sync` to `pull` first and `push` second instead of the previous order which was reversed
+* Rebasing is now the `git pull` strategy for Dots
+* Swaps the location of the `shell` and `dots version` in the shell initialization message
+
 ## v0.5.2 (2021-07-22)
 
 * Fixes odd indentation errors
