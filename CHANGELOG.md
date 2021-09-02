@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.6.1 (2021-09-02)
+
+* Separates `dots_check_shell` from `dots_init_message`
+* Adds `dots_check_shell` to `dots_init` and properly exits of the shell is not supported
+* Overwrites the contents of `$SHELL_CONFIG_FILE` instead of removing and appending to it in `dots_reset_terminal_config` (closes #2)
+
 ## v0.6.0 (2021-09-01)
 
 * Swaps the order in `dots_sync` to `pull` first and `push` second instead of the previous order which was reversed

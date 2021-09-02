@@ -26,7 +26,7 @@ Dots makes no assumptions when as to how or where your dotfiles should be instal
 * Optionally prints info about your Dots on each shell start:
 
 ```
-################### Dots v0.5.2 ###################
+################### Dots v0.6.1 ###################
 Shell: /bin/zsh
 Hostname: MacBook-Pro-Justin
 Powered by Justintime50's Dotfiles
