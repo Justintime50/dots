@@ -2,7 +2,7 @@
 
 # Dots
 
-The simple, flexible Dotfile manager.
+The simple, flexible, Dotfile manager.
 
 [![Build Status](https://github.com/Justintime50/dots/workflows/build/badge.svg)](https://github.com/Justintime50/dots/actions)
 [![Version](https://img.shields.io/github/v/tag/Justintime50/dots)](https://github.com/Justintime50/dots/releases)
@@ -26,13 +26,14 @@ Dots makes no assumptions when as to how or where your dotfiles should be instal
 * Optionally prints info about your Dots on each shell start:
 
 ```
-#################### /bin/zsh ####################
-Hostname: MacBook-Pro-Justin-EasyPost
+################### Dots v0.5.2 ###################
+Shell: /bin/zsh
+Hostname: MacBook-Pro-Justin
 Powered by Justintime50's Dotfiles
 
 Dotfiles status:
 ## main...origin/main
-##################################################
+###################################################
 ```
 
 ## Install
@@ -74,7 +75,7 @@ dots_install
 # Source all new Dotfiles
 dots_source
 
-# Pull/install/source Dotfile changes (recommended)
+# Pull/push/install/source Dotfile changes
 dots_sync
 
 # Clean Dotfiles (uses `down` function in dots-config.sh)
@@ -87,7 +88,8 @@ dots_status
 git submodule update --remote dots
 ```
 
-To not show the Dots message on shell start, simply make the `SHOW_DOTS_MESSAGE` variable empty.
+**Dots Shell Initialization Message**
+To not show the Dots message on shell start, simply make the `SHOW_DOTS_MESSAGE` variable found in `dots.sh` empty.
 
 ## Configuration
 

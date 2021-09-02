@@ -5,7 +5,7 @@ DOTFILES_DIR="$HOME/.dotfiles"
 SHOW_INIT_MESSAGE="true" # Leave this empty if you don't want to show the init messages (eg: SHOW_INIT_MESSAGE=)
 
 # Dots required variables (do not edit)
-DOTS_VERSION="v0.5.2"
+DOTS_VERSION="v0.6.0"
 HOSTNAME=$(hostname) # Required for macOS
 DOTS_SCRIPT="$DOTFILES_DIR/dots/src/dots.sh"
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
@@ -41,15 +41,15 @@ dots_init() {
 
 # Print Dotfiles message on each shell start (will be initialized from core shell file)
 dots_init_message() {
-    echo "#################### $SHELL ####################"
+    echo "################### Dots $DOTS_VERSION ###################"
     dots_check_shell
+    echo "Shell: $SHELL"
     echo "Hostname: $HOSTNAME"
-    echo "Dots $DOTS_VERSION"
     echo "Powered by $DOTFILES_GITHUB_USER's Dotfiles"
     echo ""
     echo "Dotfiles status: "
     dots_get_dotfiles_status
-    echo "##################################################"
+    echo "###################################################"
 }
 
 # Push Dotfiles up to the Git server
@@ -68,7 +68,7 @@ dots_push() {
 dots_pull() {	
     if [ -d "$DOTFILES_DIR" ] ; then
         echo "Pulling dotfiles..."
-        git -C "$DOTFILES_DIR" pull > /dev/null 2>&1 && echo "Dotfiles pulled!" || echo "Error pulling Dotfiles"
+        git -C "$DOTFILES_DIR" pull --rebase > /dev/null 2>&1 && echo "Dotfiles pulled!" || echo "Error pulling Dotfiles"
     else
         echo "Dotfiles directory does not exist."
     fi
@@ -130,8 +130,8 @@ dots_status() {
 dots_sync() {
     echo "Dots is about to sync your Dotfiles, this process may override your current Dotfiles. Press any key to continue."
     read -r
-    dots_push
     dots_pull
+    dots_push
     dots_install
     dots_source
 }
