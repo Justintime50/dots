@@ -89,6 +89,7 @@ git submodule update --remote dots
 ```
 
 **Dots Shell Initialization Message**
+
 To not show the Dots message on shell start, simply make the `SHOW_DOTS_MESSAGE` variable found in `dots.sh` empty.
 
 ## Configuration
