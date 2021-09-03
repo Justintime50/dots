@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.6.2 (2021-09-03)
+
+* Code refactor cutting out redundant validation checks
+* We now properly initialize Dots when running the standalone `dots_source` function
+
 ## v0.6.1 (2021-09-02)
 
 * Separates `dots_check_shell` from `dots_init_message`
