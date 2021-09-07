@@ -1,9 +1,10 @@
 # CHANGELOG
 
-## v0.6.2 (2021-09-03)
+## v0.7.0 (2021-09-06)
 
-* Code refactor cutting out redundant validation checks
+* Code refactor cutting out redundant validation checks, making error handling modular, and properly exiting Dots when an error occurs
 * We now properly initialize Dots when running the standalone `dots_source` function
+* Cleaned up `dots` namespace by prepending internal helper functions with an underscore (those functions that aren't intended to be used by users. This should assist with autocorrect)
 
 ## v0.6.1 (2021-09-02)
 
