@@ -148,7 +148,3 @@ dots_config_down() {
     fi
 }
 ```
-
-## Attribution
-
-* Icons made by <a href="" title="xnimrodx">xnimrodx</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
