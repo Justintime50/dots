@@ -8,7 +8,7 @@ The simple, flexible, Dotfile manager.
 [![Version](https://img.shields.io/github/v/tag/Justintime50/dots)](https://github.com/Justintime50/dots/releases)
 [![Licence](https://img.shields.io/github/license/justintime50/dots)](LICENSE)
 
-<img src="assets/showcase.png" alt="Showcase">
+<img src="https://raw.githubusercontent.com/justintime50/assets/main/src/dots/showcase.png" alt="Showcase">
 
 </div>
 
