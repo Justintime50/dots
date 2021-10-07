@@ -1,18 +1,17 @@
 # shellcheck disable=SC1090,SC2148,SC2269
 
 # User configurable variables
-DOTFILES_DIR="$HOME/.dotfiles"
+DOTFILES_DIR="$HOME/.dotfiles"  # Cannot be `~/.dots` as we will use this for internal Dots usage
 SHOW_INIT_MESSAGE="true"  # Leave this empty if you don't want to show the init messages (eg: SHOW_INIT_MESSAGE=)
 
 # Dots required variables (do not edit)
-DOTS_VERSION="v0.7.0"
+DOTS_VERSION="v0.8.0"
+DOTS_DIR="$HOME/.dots"
 HOSTNAME=$(hostname)  # Required for macOS
 DOTS_SCRIPT="$DOTFILES_DIR/dots/src/dots.sh"
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
 DOTFILES_URL="$DOTFILES_URL"  # Yes, we recursively set this here because of our loop sourcing
 DOTFILES_GITHUB_USER="$(basename "$(dirname "$DOTFILES_URL")")"  # Dynamically fill this based on the dotfiles URL
-
-# TODO: Add a function that allows you to see what dotfiles were linked
 
 ### HELPERS ###
 
@@ -53,6 +52,7 @@ _dots_check_config_file() {
 # Anything that Dots needs upon initialization goes here
 _dots_init() {
     if _dots_check_shell ; then
+        mkdir -p "$DOTS_DIR"
         if [ "$SHELL" = "/bin/zsh" ] ; then
             SHELL_CONFIG_FILE="$HOME/.zshrc"
         elif [ "$SHELL" = "/bin/bash" ] ; then
@@ -93,6 +93,18 @@ _dots_reset_terminal_config() {
     fi
 }
 
+# Save the installation steps to a log
+_dots_log_install_step() {
+    # The `dots_config_up` command is sourced from "$DOTS_CONFIG_FILE":
+    { set -x; dots_config_up; set +x; } 2> "$DOTS_DIR/install.log"    
+}
+
+# Save the clean steps to a log
+_dots_log_clean_step() {
+    # The `dots_config_down` command is sourced from "$DOTS_CONFIG_FILE":
+    { set -x; dots_config_down; set +x; } 2> "$DOTS_DIR/clean.log"    
+}
+
 ### INTERFACES ###
 
 # Push Dotfiles up to the Git server
@@ -118,20 +130,19 @@ dots_install() {
     if _dots_check_config_file ; then
         _dots_reset_terminal_config
         echo "Installing dotfiles..."
-
-        # The `dots_config_up` command is sourced from "$DOTS_CONFIG_FILE":
-        dots_config_up && echo "Dotfiles installed!" || echo "Error installing Dotfiles"
+        _dots_log_install_step && echo "Dotfiles installed!" || echo "Error installing Dotfiles"
     fi
 }
 
 # Cleans dotfiles based on the Dots config file
 dots_clean() {
+    echo "Dots is about to clean your Dotfiles. Press any key to continue."
+    read -r
+
     if _dots_check_config_file ; then
         _dots_reset_terminal_config
         echo "Cleaning dotfiles..."
-
-        # The `dots_config_down` command is sourced from "$DOTS_CONFIG_FILE":
-        dots_config_down && echo "Dotfiles cleaned!" || echo "Error cleaning Dotfiles"
+        _dots_log_clean_step && echo "Dotfiles cleaned!" || echo "Error cleaning Dotfiles"
     fi
 }
 
@@ -145,6 +156,7 @@ dots_status() {
 dots_sync() {
     echo "Dots is about to sync your Dotfiles, this process may override your current Dotfiles. Press any key to continue."
     read -r
+
     dots_pull
     dots_push
     dots_install
@@ -157,4 +169,9 @@ dots_source() {
         . "$SHELL_CONFIG_FILE"
         echo "Dotfiles sourced!"
     fi
+}
+
+# List the dotfiles that were installed
+dots_list() {
+    cat "$DOTS_DIR/install.log"
 }
