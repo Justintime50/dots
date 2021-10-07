@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.8.0 (2021-10-07)
+
+* Adds a `dots_list` function which shows the dotfiles that were last installed (closes #4)
+* Adds logging for the `install` and `clean` steps for debugging and for the usage of `dots_list` (these can be found at `~/.dots`)
+* Adds a prompt on the `dots_clean` step to ensure the user wants to proceed
+
 ## v0.7.0 (2021-09-06)
 
 * Code refactor cutting out redundant validation checks, making error handling modular, and properly exiting Dots when an error occurs
