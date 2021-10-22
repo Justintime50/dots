@@ -14,7 +14,7 @@ The simple, flexible, Dotfile manager.
 
 Dots is a simple Dotfile manager that is incredibly flexible. Your workflow is different from everyone else, why conform to an opinionated set of dotfile logic?
 
-Dots was created because projects such as [Dotbot](https://github.com/anishathalye/dotbot) only install/link your dotfiles but don't help you sync them across computers and projects like [Dotman](https://github.com/Bhupesh-V/dotman) only help you sync your dotfiles but not actually install/link them. I needed a system that could do both.
+Dots was created because projects such as [Dotbot](https://github.com/anishathalye/dotbot) only install/link your dotfiles but don't help you sync them across computers and projects while [Dotman](https://github.com/Bhupesh-V/dotman) only helps you sync your dotfiles but not actually install/link them. I needed a system that could do both.
 
 Dots makes no assumptions when as to how or where your dotfiles should be installed. Dots allows you to specify "Dotfiles as code", allowing you to decide what gets installed where and how. Simply provide a list of commands to run such as symlinking or moving your dotfiles around and Dots will take care of the rest.
 
