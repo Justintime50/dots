@@ -1,29 +1,18 @@
-# shellcheck disable=SC1090,SC2148,SC2269
+# Dots: The simple, flexible, Dotfile manager.
+# shellcheck disable=SC1090,SC2148
 
 # User configurable variables
 DOTFILES_DIR="$HOME/.dotfiles"  # Cannot be `~/.dots` as we will use this for internal Dots usage
-SHOW_INIT_MESSAGE="true"  # Leave this empty if you don't want to show the init messages (eg: SHOW_INIT_MESSAGE=)
+DOTS_SHOW_INIT_MESSAGE="true"  # Leave this empty if you don't want to show the init messages (eg: DOTS_SHOW_INIT_MESSAGE=)
 
 # Dots required variables (do not edit)
-DOTS_VERSION="v0.9.0"
+DOTS_VERSION="v1.0.0"
 DOTS_DIR="$HOME/.dots"
-HOSTNAME=$(hostname)  # Required for macOS
-DOTS_SCRIPT="$DOTFILES_DIR/dots/src/dots.sh"
+HOSTNAME="$(hostname)"  # Required for macOS as it's not set automatically like it is on Linux
+DOTS_SCRIPT_FILE="$DOTFILES_DIR/dots/src/dots.sh"
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
-DOTFILES_URL="$DOTFILES_URL"  # Yes, we recursively set this here because of our loop sourcing
-DOTFILES_GITHUB_USER="$(basename "$(dirname "$DOTFILES_URL")")"  # Dynamically fill this based on the dotfiles URL
 
-### HELPERS ###
-
-# Checks that dotfiles are up to date each time a terminal starts
- _dots_get_dotfiles_status() {
-    if [ -d "$DOTFILES_DIR" ] ; then
-        dots_status
-    else
-        echo "Dotfiles directory does not exist."
-        return 1
-    fi
-}
+### CHECKERS ###
 
 # Ensures the dotfiles directory exists
 _dots_check_dotfiles_dir() {
@@ -44,7 +33,7 @@ _dots_check_shell() {
 # Ensures the Dots config file exists
 _dots_check_config_file() {
     if [ ! -f "$DOTS_CONFIG_FILE" ] ; then
-        echo "Dots couldn't find $DOTS_CONFIG_FILE."
+        echo "Dots couldn't find DOTS_CONFIG_FILE."
         return 1
     fi
 }
@@ -52,8 +41,31 @@ _dots_check_config_file() {
 # Ensures the shell config file exists
 _dots_check_shell_config_file() {
     if [ ! -f "$SHELL_CONFIG_FILE" ] ; then
-        echo "Dots couldn't find $SHELL_CONFIG_FILE."
+        echo "Dots couldn't find SHELL_CONFIG_FILE."
         return 1
+    fi
+}
+
+### HELPERS ###
+
+# Checks that dotfiles are up to date each time a terminal starts
+_dots_get_dotfiles_status() {
+    if _dots_check_dotfiles_dir ; then
+        dots_status
+    else
+        echo "Dotfiles directory does not exist."
+        return 1
+    fi
+}
+
+# Sets the SHELL_CONFIG_FILE variable based on the current shell in use
+_dots_set_shell_config_file() {
+    if [ "$SHELL" = "/bin/zsh" ] ; then
+        SHELL_CONFIG_FILE="$HOME/.zshrc"
+    elif [ "$SHELL" = "/bin/bash" ] ; then
+        SHELL_CONFIG_FILE="$HOME/.bash_profile"
+    elif [ "$SHELL" = "/bin/sh" ] || [ "$SHELL" = "/bin/dash" ] || [ "$SHELL" = "/bin/ksh" ] ; then
+        SHELL_CONFIG_FILE="$HOME/.profile"
     fi
 }
 
@@ -61,13 +73,7 @@ _dots_check_shell_config_file() {
 _dots_init() {
     if _dots_check_shell ; then
         mkdir -p "$DOTS_DIR"
-        if [ "$SHELL" = "/bin/zsh" ] ; then
-            SHELL_CONFIG_FILE="$HOME/.zshrc"
-        elif [ "$SHELL" = "/bin/bash" ] ; then
-            SHELL_CONFIG_FILE="$HOME/.bash_profile"
-        elif [ "$SHELL" = "/bin/sh" ] || [ "$SHELL" = "/bin/dash" ] || [ "$SHELL" = "/bin/ksh" ] ; then
-            SHELL_CONFIG_FILE="$HOME/.profile"
-        fi
+        _dots_set_shell_config_file
     else
         return 1
     fi
@@ -77,29 +83,28 @@ _dots_init() {
 _dots_init_message() {
     echo "################### Dots $DOTS_VERSION ###################"
     echo "Shell: $SHELL"
-    echo "Hostname: $HOSTNAME"
-    echo "Powered by $DOTFILES_GITHUB_USER's Dotfiles"
+    echo "Hostname: $HOSTNAME"  # We print Hostname here to assist with multi-machine Dotfile management
     echo ""
-    echo "Dotfiles status: "
+    echo "Dotfiles status:"
     _dots_get_dotfiles_status
     echo "###################################################"
 }
 
-# Resets the .zshrc/.bash_profile files to only contain Dots and the config
+# Resets the `~/.zshrc`, `~/.bash_profile`, or `~/.profile` files to only contain Dots and the config
+# Be aware this will overwrite whatever the user has setup at those locations and create it if it doesn't exist
 _dots_reset_terminal_config() {
-    if _dots_init && _dots_check_shell_config_file ; then
+    if _dots_init ; then
         {
             echo "# Dots Config";
-            echo "DOTFILES_URL=\"$DOTFILES_URL\"";
-            echo ". $DOTS_SCRIPT";
+            echo ". $DOTS_SCRIPT_FILE";
             echo ". $DOTS_CONFIG_FILE";
             echo "_dots_init";
-            if [ "$SHOW_INIT_MESSAGE" ] ; then
+            if [ "$DOTS_SHOW_INIT_MESSAGE" ] ; then
                 echo "_dots_init_message";
             fi
             echo "";
             echo "# Dotfiles Config";
-        } > "$SHELL_CONFIG_FILE"
+        } > "$SHELL_CONFIG_FILE"  # If this file doesn't yet exist, it will be created here
     fi
 }
 

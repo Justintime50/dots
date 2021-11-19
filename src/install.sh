@@ -1,23 +1,30 @@
-#!/bin/bash
+#!/bin/sh
 
 # shellcheck disable=SC1090
 
 DOTFILES_DIR="$HOME/.dotfiles"
-SHELL_CONFIG_FILE="$HOME/$2"
 
 main() {
-    if [ -n "$1" ] && [ -n "$2" ] ; then
-        # Add Dots as a sourced script to your current shell config
-        echo ". $DOTFILES_DIR/dots/src/dots.sh" >> "$SHELL_CONFIG_FILE"
-        echo ". $DOTFILES_DIR/dots-config.sh" >> "$SHELL_CONFIG_FILE"
+    # Sets SHELL_CONFIG_FILE for our use
+    _dots_set_shell_config_file
+    
+    # Add Dots as a sourced script to your current shell config (running this install script will overwrite your shell config file)
+    echo ". $DOTFILES_DIR/dots/src/dots.sh" >> "$SHELL_CONFIG_FILE"
+    echo ". $DOTFILES_DIR/dots-config.sh" >> "$SHELL_CONFIG_FILE"
 
-        # Run `dots_sync` the first time specifying the DOTFILES_URL of your project (replace USERNAME)
-        . "$SHELL_CONFIG_FILE"
-        DOTFILES_URL="$1" dots_sync
-    else
-        echo "Could not install Dots due to missing parameters."
-        exit 1
+    . "$SHELL_CONFIG_FILE"
+    dots_sync  # This is sourced from the SHELL_CONFIG_FILE
+}
+
+# Sets the SHELL_CONFIG_FILE variable based on the current shell in use
+_dots_set_shell_config_file() {
+    if [ "$SHELL" = "/bin/zsh" ] ; then
+        SHELL_CONFIG_FILE="$HOME/.zshrc"
+    elif [ "$SHELL" = "/bin/bash" ] ; then
+        SHELL_CONFIG_FILE="$HOME/.bash_profile"
+    elif [ "$SHELL" = "/bin/sh" ] || [ "$SHELL" = "/bin/dash" ] || [ "$SHELL" = "/bin/ksh" ] ; then
+        SHELL_CONFIG_FILE="$HOME/.profile"
     fi
 }
 
-main "$@"
+main

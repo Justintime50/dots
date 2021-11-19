@@ -27,13 +27,12 @@ Dots makes no assumptions as to how or where your dotfiles should be installed. 
 * Optionally prints info about your Dots on each shell start:
 
 ```
-################### Dots v0.6.1 ###################
+################### Dots v1.0.0 ###################
 Shell: /bin/zsh
 Hostname: MacBook-Pro-Justin
-Powered by Justintime50's Dotfiles
 
 Dotfiles status:
-## main...origin/main
+## main...origin/main [behind 1]
 ###################################################
 ```
 
@@ -55,8 +54,9 @@ git submodule add https://github.com/Justintime50/dots.git
 git clone https://github.com/USERNAME/dotfiles.git "$HOME/.dotfiles"
 git -C "$HOME/.dotfiles" submodule init && git -C "$HOME/.dotfiles" submodule update
 
-# 2) Install Dots (param 1 is the URL of your Dotfiles project, param 2 is your shell config file such as `.zshrc` or `.bash_profile`)
-$HOME/.dotfiles/dots/src/install.sh https://github.com/USERNAME/dotfiles.git .zshrc
+# 2) Install Dots
+# Installation assumes your dotfiles are are stored at `~/.dotfiles`; if not, alter the `DOTFILES_DIR` variable in `install.sh`
+$HOME/.dotfiles/dots/src/install.sh
 ```
 
 ## Usage
@@ -94,7 +94,7 @@ git submodule update --remote dots
 
 **Dots Shell Initialization Message**
 
-To not show the Dots message on shell start, simply make the `SHOW_DOTS_MESSAGE` variable found in `dots.sh` empty.
+If you would like to not show the Dots message on shell start, simply make the `DOTS_SHOW_DOTS_MESSAGE` variable found in `dots.sh` empty.
 
 ## Configuration
 
