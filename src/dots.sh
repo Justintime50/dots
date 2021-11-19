@@ -5,7 +5,7 @@ DOTFILES_DIR="$HOME/.dotfiles"  # Cannot be `~/.dots` as we will use this for in
 SHOW_INIT_MESSAGE="true"  # Leave this empty if you don't want to show the init messages (eg: SHOW_INIT_MESSAGE=)
 
 # Dots required variables (do not edit)
-DOTS_VERSION="v0.8.0"
+DOTS_VERSION="v0.9.0"
 DOTS_DIR="$HOME/.dots"
 HOSTNAME=$(hostname)  # Required for macOS
 DOTS_SCRIPT="$DOTFILES_DIR/dots/src/dots.sh"
@@ -35,16 +35,24 @@ _dots_check_dotfiles_dir() {
 
 # Ensures the shell being used is supported
 _dots_check_shell() {
-    if [ "$SHELL" != "/bin/zsh" ] && [ "$SHELL" != "/bin/bash" ] ; then
+    if [ "$SHELL" != "/bin/zsh" ] && [ "$SHELL" != "/bin/bash" ] && [ "$SHELL" != "/bin/sh" ] && [ "$SHELL" != "/bin/dash" ] && [ "$SHELL" = "/bin/ksh" ] ; then
         echo "Dots doesn't support $SHELL."
         return 1
     fi
 }
 
-# Ensures the Dots config file is present
+# Ensures the Dots config file exists
 _dots_check_config_file() {
     if [ ! -f "$DOTS_CONFIG_FILE" ] ; then
         echo "Dots couldn't find $DOTS_CONFIG_FILE."
+        return 1
+    fi
+}
+
+# Ensures the shell config file exists
+_dots_check_shell_config_file() {
+    if [ ! -f "$SHELL_CONFIG_FILE" ] ; then
+        echo "Dots couldn't find $SHELL_CONFIG_FILE."
         return 1
     fi
 }
@@ -57,6 +65,8 @@ _dots_init() {
             SHELL_CONFIG_FILE="$HOME/.zshrc"
         elif [ "$SHELL" = "/bin/bash" ] ; then
             SHELL_CONFIG_FILE="$HOME/.bash_profile"
+        elif [ "$SHELL" = "/bin/sh" ] || [ "$SHELL" = "/bin/dash" ] || [ "$SHELL" = "/bin/ksh" ] ; then
+            SHELL_CONFIG_FILE="$HOME/.profile"
         fi
     else
         return 1
@@ -71,13 +81,13 @@ _dots_init_message() {
     echo "Powered by $DOTFILES_GITHUB_USER's Dotfiles"
     echo ""
     echo "Dotfiles status: "
-     _dots_get_dotfiles_status
+    _dots_get_dotfiles_status
     echo "###################################################"
 }
 
 # Resets the .zshrc/.bash_profile files to only contain Dots and the config
 _dots_reset_terminal_config() {
-    if _dots_init ; then
+    if _dots_init && _dots_check_shell_config_file ; then
         {
             echo "# Dots Config";
             echo "DOTFILES_URL=\"$DOTFILES_URL\"";
@@ -165,7 +175,7 @@ dots_sync() {
 
 # Sources the shell
 dots_source() {
-    if _dots_init ; then
+    if _dots_init && _dots_check_shell_config_file ; then
         . "$SHELL_CONFIG_FILE"
         echo "Dotfiles sourced!"
     fi

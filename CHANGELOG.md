@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.9.0 (2021-11-19)
+
+* Adds support for `sh`, `dash`, and `ksh` shells by using the `~/.profile` (closes #5)
+* Added a missing check to ensure that the shell config file exists for functions that need it
+
 ## v0.8.0 (2021-10-07)
 
 * Adds a `dots_list` function which shows the dotfiles that were last installed (closes #4)
