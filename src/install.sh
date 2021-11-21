@@ -2,13 +2,14 @@
 
 # This script will install Dots initially on your system
 
-# shellcheck disable=SC1090
+# shellcheck disable=SC1090,SC1091
 
 DOTFILES_DIR="$HOME/.dotfiles"
+DOTS_DOTFILES_DIR="$DOTFILES_DIR/dots/src"
 
 main() {
     # Sets SHELL_CONFIG_FILE for our use
-    . shared.sh
+    . "$DOTS_DOTFILES_DIR/shared.sh"
     _dots_set_shell_config_file  # Sourced from `shared.sh`
     
     # Add Dots as a sourced script to your current shell config (running this install script will overwrite your shell config file)

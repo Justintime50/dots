@@ -1,6 +1,6 @@
 # Dots: The simple, flexible, Dotfile manager.
 
-# shellcheck disable=SC1090,SC2148
+# shellcheck disable=SC1090,SC1091,SC2148
 
 # User configurable variables
 DOTFILES_DIR="$HOME/.dotfiles"  # Cannot be `~/.dots` as we will use this for internal Dots usage
@@ -8,9 +8,10 @@ DOTS_SHOW_INIT_MESSAGE="true"  # Leave this empty if you don't want to show the 
 
 # Dots required variables (do not edit)
 DOTS_VERSION="v1.0.0"
-DOTS_DIR="$HOME/.dots"
 HOSTNAME="$(hostname)"  # Required for macOS as it's not set automatically like it is on Linux
-DOTS_SCRIPT_FILE="$DOTFILES_DIR/dots/src/dots.sh"
+DOTS_DIR="$HOME/.dots"
+DOTS_DOTFILES_DIR="$DOTFILES_DIR/dots/src"
+DOTS_SCRIPT_FILE="$DOTS_DOTFILES_DIR/dots.sh"
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
 
 ### CHECKERS ###
@@ -63,7 +64,7 @@ _dots_get_dotfiles_status() {
 _dots_init() {
     if _dots_check_shell ; then
         # Source anything that's required for the installer and dots such as `_dots_set_shell_config_file`
-        . shared.sh
+        . "$DOTS_DOTFILES_DIR/shared.sh"
         _dots_set_shell_config_file  # Sourced from `shared.sh`
 
         mkdir -p "$DOTS_DIR"
