@@ -64,8 +64,9 @@ _dots_init() {
     if _dots_check_shell ; then
         # Source anything that's required for the installer and dots such as `_dots_set_shell_config_file`
         . shared.sh
-        mkdir -p "$DOTS_DIR"
         _dots_set_shell_config_file  # Sourced from `shared.sh`
+
+        mkdir -p "$DOTS_DIR"
     else
         return 1
     fi
@@ -87,7 +88,7 @@ _dots_init_message() {
 _dots_reset_terminal_config() {
     if _dots_init ; then
         {
-            echo "# Dots Config";
+            echo "# Dots Config (automatically set, do not edit)";
             echo ". $DOTS_SCRIPT_FILE";
             echo ". $DOTS_CONFIG_FILE";
             echo "_dots_init";
@@ -95,7 +96,7 @@ _dots_reset_terminal_config() {
                 echo "_dots_init_message";
             fi
             echo "";
-            echo "# Dotfiles Config";
+            echo "# Dotfiles Config (custom, edit below this line)";
         } > "$SHELL_CONFIG_FILE"  # If this file doesn't yet exist, it will be created here
     fi
 }
