@@ -94,7 +94,7 @@ git submodule update --remote dots
 
 **Dots Shell Initialization Message**
 
-If you would like to not show the Dots message on shell start, simply make the `DOTS_SHOW_DOTS_MESSAGE` variable found in `dots.sh` empty.
+If you would like to not show the Dots message on shell start, simply make the `DOTS_SHOW_INIT_MESSAGE` variable found in `dots.sh` empty.
 
 ## Configuration
 
@@ -103,7 +103,7 @@ The only thing Dots requires for configuration is a file in the root of your Dot
 ### Basic Configuration
 
 ```bash
-# The variable "DOTFILES_DIR" is available to use here (points to $HOME/.dotfiles)
+# The variable "DOTFILES_DIR" is available to use here (points to $HOME/.dotfiles by default)
 
 # Instructions run when installing/updating Dotfiles
 dots_config_up() {
@@ -112,19 +112,19 @@ dots_config_up() {
 
 # Instructions run when cleaning Dotfiles
 dots_config_down() {
-    rm -i "$HOME"/.gitconfig
+    rm "$HOME"/.gitconfig
 }
 ```
 
 ### Advanced Configuration
 
 ```bash
-# The variable "DOTFILES_DIR" is available to use here (points to $HOME/.dotfiles)
+# The variable "DOTFILES_DIR" is available to use here (points to $HOME/.dotfiles by default)
 
 # Instructions run when installing/updating Dotfiles
 dots_config_up() {
     # Specifying a hostname is completely optional, but an effective way to ensure
-    # computer-specific Dotfiles are installed properly. One config file can configure
+    # computer-specific Dotfiles are installed properly. One config file can setup
     # multiple computers depending on their HOSTNAME
     if [[ "$HOSTNAME" == "MacBook-Pro-Justin" ]] ; then
         ln -sfn "$DOTFILES_DIR"/src/personal/home/.gitconfig "$HOME"/.gitconfig

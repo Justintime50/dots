@@ -1,4 +1,5 @@
 # Dots: The simple, flexible, Dotfile manager.
+
 # shellcheck disable=SC1090,SC2148
 
 # User configurable variables
@@ -58,22 +59,13 @@ _dots_get_dotfiles_status() {
     fi
 }
 
-# Sets the SHELL_CONFIG_FILE variable based on the current shell in use
-_dots_set_shell_config_file() {
-    if [ "$SHELL" = "/bin/zsh" ] ; then
-        SHELL_CONFIG_FILE="$HOME/.zshrc"
-    elif [ "$SHELL" = "/bin/bash" ] ; then
-        SHELL_CONFIG_FILE="$HOME/.bash_profile"
-    elif [ "$SHELL" = "/bin/sh" ] || [ "$SHELL" = "/bin/dash" ] || [ "$SHELL" = "/bin/ksh" ] ; then
-        SHELL_CONFIG_FILE="$HOME/.profile"
-    fi
-}
-
 # Anything that Dots needs upon initialization goes here
 _dots_init() {
     if _dots_check_shell ; then
+        # Source anything that's required for the installer and dots such as `_dots_set_shell_config_file`
+        . shared.sh
         mkdir -p "$DOTS_DIR"
-        _dots_set_shell_config_file
+        _dots_set_shell_config_file  # Sourced from `shared.sh`
     else
         return 1
     fi

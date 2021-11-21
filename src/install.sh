@@ -1,30 +1,23 @@
 #!/bin/sh
 
+# This script will install Dots initially on your system
+
 # shellcheck disable=SC1090
 
 DOTFILES_DIR="$HOME/.dotfiles"
 
 main() {
     # Sets SHELL_CONFIG_FILE for our use
-    _dots_set_shell_config_file
+    . shared.sh
+    _dots_set_shell_config_file  # Sourced from `shared.sh`
     
     # Add Dots as a sourced script to your current shell config (running this install script will overwrite your shell config file)
     echo ". $DOTFILES_DIR/dots/src/dots.sh" >> "$SHELL_CONFIG_FILE"
     echo ". $DOTFILES_DIR/dots-config.sh" >> "$SHELL_CONFIG_FILE"
 
+    # Source the SHELL_CONFIG_FILE so we can call `dots_sync`
     . "$SHELL_CONFIG_FILE"
-    dots_sync  # This is sourced from the SHELL_CONFIG_FILE
-}
-
-# Sets the SHELL_CONFIG_FILE variable based on the current shell in use
-_dots_set_shell_config_file() {
-    if [ "$SHELL" = "/bin/zsh" ] ; then
-        SHELL_CONFIG_FILE="$HOME/.zshrc"
-    elif [ "$SHELL" = "/bin/bash" ] ; then
-        SHELL_CONFIG_FILE="$HOME/.bash_profile"
-    elif [ "$SHELL" = "/bin/sh" ] || [ "$SHELL" = "/bin/dash" ] || [ "$SHELL" = "/bin/ksh" ] ; then
-        SHELL_CONFIG_FILE="$HOME/.profile"
-    fi
+    dots_sync
 }
 
 main
