@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.0.0 (2021-11-21)
+
+* Refactored variables for easier installation (now requiring no parameters to the install script), better reuse of code, and correctly namespaced items
+    * `SHOW_DOTS_MESSAGE` is now `DOTS_SHOW_INIT_MESSAGE`
+    * `DOTFILES_URL` is no longer used anywhere and no longer needed (this also means the "Powered by ... Dotfiles" message is gone)
+* Fixed a bug that would throw an error if no shell config file was found on startup (this was problematic as we started assuming the user already had a shell config file; however, that may not be the case for a brand new machine getting setup with Dots)
+* Various other improvements made to the underlyinng code including refactor, comments, updated documentation, etc
+
 ## v0.9.0 (2021-11-19)
 
 * Adds support for `sh`, `dash`, and `ksh` shells by using the `~/.profile` (closes #5)
