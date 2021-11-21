@@ -184,3 +184,10 @@ dots_source() {
 dots_list() {
     cat "$DOTS_DIR/install.log"
 }
+
+# Update the Dots submodule in the `DOTFILES_DIR`
+dots_update() {
+    if _dots_check_dotfiles_dir ; then
+        git -C "$DOTFILES_DIR" submodule update --remote dots
+    fi
+}

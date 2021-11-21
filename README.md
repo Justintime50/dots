@@ -88,8 +88,8 @@ dots_status
 # Show the list of dotfiles installed
 dots_list
 
-# To update Dots once it's a submodule in your Dotfiles project, run the following
-git submodule update --remote dots
+# Update the Dots submodule in your dotfiles project
+dots_update
 ```
 
 **Dots Shell Initialization Message**
