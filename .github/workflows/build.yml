@@ -3,24 +3,28 @@ name: build
 on: [push, pull_request]
 
 jobs:
-  shellcheck:
+  sh-checker:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-      - name: Run ShellCheck for bash
-        uses: ludeeus/action-shellcheck@1.0.0
+      - name: Run sh-checker for bash
+        uses: luizm/action-sh-checker@master
         env:
+          SHFMT_OPTS: -i 4 -d
           SHELLCHECK_OPTS: -s bash
-      - name: Run ShellCheck for sh
-        uses: ludeeus/action-shellcheck@1.0.0
+      - name: Run sh-checker for sh
+        uses: luizm/action-sh-checker@master
         env:
+          SHFMT_OPTS: -i 4 -d
           SHELLCHECK_OPTS: -s sh
-      - name: Run ShellCheck for dash
-        uses: ludeeus/action-shellcheck@1.0.0
+      - name: Run sh-checker for dash
+        uses: luizm/action-sh-checker@master
         env:
+          SHFMT_OPTS: -i 4 -d
           SHELLCHECK_OPTS: -s dash
-      - name: Run ShellCheck for ksh
-        uses: ludeeus/action-shellcheck@1.0.0
+      - name: Run sh-checker for ksh
+        uses: luizm/action-sh-checker@master
         env:
+          SHFMT_OPTS: -i 4 -d
           SHELLCHECK_OPTS: -s ksh
