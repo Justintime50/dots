@@ -42,9 +42,10 @@ Dots will override your current Dotfiles, namely `~/.zshrc` for `zsh`, `~/.bash_
 
 To install Dots, simply drop it into your current Dotfiles project:
 
-* If installing Dots into your current Dotfiles project, follow step `1a`.
-* If installing your Dotfiles on a new machine (assumes Dots is already in your Dotfiles project), follow step `1b`.
-* Regardless of which part of step 1 you follow, run steps 2.
+* If installing Dots into your current Dotfiles project, follow step `1a`
+* If installing your Dotfiles on a new machine (assumes Dots is already in your Dotfiles project), follow step `1b`
+* Regardless of which part of step 1 you follow, run steps 2
+* Optionally set env vars in step 3
 
 ```bash
 # 1a) Add Dots as a git submodule in your Dotfiles project
@@ -57,6 +58,9 @@ git -C "$HOME/.dotfiles" submodule init && git -C "$HOME/.dotfiles" submodule up
 # 2) Install Dots
 # Installation assumes your dotfiles are are stored at `~/.dotfiles`; if not, alter the `DOTFILES_DIR` variable in `install.sh`
 $HOME/.dotfiles/dots/src/install.sh
+
+# 3) Optionally set the dotfiles directory (defaults to ~/.dotfiles when not set explicitly)
+echo 'export DOTFILES_DIR=my/custom/path' >> ~/.zshrc
 ```
 
 ## Usage
@@ -94,11 +98,11 @@ dots_update
 
 **Dots Shell Initialization Message**
 
-If you would like to not show the Dots message on shell start, simply make the `DOTS_SHOW_INIT_MESSAGE` variable found in `dots.sh` empty.
+If you would like to disable the Dots message on shell start, simply set the `DOTS_DISABLE_INIT_MESSAGE` env var in your shell profile.
 
 ## Configuration
 
-The only thing Dots requires for configuration is a file in the root of your Dotfiles project titled `dots-config.sh` with two functions. Much like a database migration file, we provide a list of instructions (up and down) to install or clean our Dotfiles. A simple example is shown below:
+The only thing Dots requires for configuration is a file in the root of your Dotfiles project titled `dots-config.sh` with two functions. Inspired by database migration syntax, we provide a list of instructions (up and down) to install or clean our Dotfiles. A simple example is shown below:
 
 ### Basic Configuration
 

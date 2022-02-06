@@ -4,15 +4,14 @@
 
 # User configurable variables
 DOTFILES_DIR="$HOME/.dotfiles" # Cannot be `~/.dots` as we will use this for internal Dots usage
-DOTS_SHOW_INIT_MESSAGE="true"  # Leave this empty if you don't want to show the init messages (eg: DOTS_SHOW_INIT_MESSAGE=)
+DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
 
 # Dots required variables (do not edit)
-DOTS_VERSION="v1.0.0"
+DOTS_VERSION="v1.1.0"
 HOSTNAME="$(hostname)" # Required for macOS as it's not set automatically like it is on Linux
-DOTS_DIR="$HOME/.dots"
-DOTS_DOTFILES_DIR="$DOTFILES_DIR/dots/src"
-DOTS_SCRIPT_FILE="$DOTS_DOTFILES_DIR/dots.sh"
-DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
+DOTS_HOME_DIR="$HOME/.dots"
+DOTS_DIR="$DOTFILES_DIR/dots/src"
+DOTS_SCRIPT_FILE="$DOTS_DIR/dots.sh"
 
 ### CHECKERS ###
 
@@ -64,10 +63,10 @@ _dots_get_dotfiles_status() {
 _dots_init() {
     if _dots_check_shell; then
         # Source anything that's required for the installer and dots such as `_dots_set_shell_config_file`
-        . "$DOTS_DOTFILES_DIR/shared.sh"
+        . "$DOTS_DIR/shared.sh"
         _dots_set_shell_config_file # Sourced from `shared.sh`
 
-        mkdir -p "$DOTS_DIR"
+        mkdir -p "$DOTS_HOME_DIR"
     else
         return 1
     fi
@@ -93,7 +92,7 @@ _dots_reset_terminal_config() {
             echo ". $DOTS_SCRIPT_FILE"
             echo ". $DOTS_CONFIG_FILE"
             echo "_dots_init"
-            if [ "$DOTS_SHOW_INIT_MESSAGE" ]; then
+            if [ ! "$DOTS_DISABLE_INIT_MESSAGE" ]; then
                 echo "_dots_init_message"
             fi
             echo ""
@@ -109,7 +108,7 @@ _dots_log_install_step() {
         set -x
         dots_config_up
         set +x
-    } 2>"$DOTS_DIR/install.log"
+    } 2>"$DOTS_HOME_DIR/install.log"
 }
 
 # Save the clean steps to a log
@@ -119,7 +118,7 @@ _dots_log_clean_step() {
         set -x
         dots_config_down
         set +x
-    } 2>"$DOTS_DIR/clean.log"
+    } 2>"$DOTS_HOME_DIR/clean.log"
 }
 
 ### INTERFACES ###
@@ -190,7 +189,7 @@ dots_source() {
 
 # List the dotfiles that were installed
 dots_list() {
-    cat "$DOTS_DIR/install.log"
+    cat "$DOTS_HOME_DIR/install.log"
 }
 
 # Update the Dots submodule in the `DOTFILES_DIR`
