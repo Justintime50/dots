@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.1.1 (2022-02-07)
+
+* Fixes a bug that didn't properly check if `DOTS_DISABLE_INIT_MESSAGE` was set or not
+
 ## v1.1.0 (2022-02-06)
 
 * Renames the `DOTS_SHOW_INIT_MESSAGE` to `DOTS_DISABLE_INIT_MESSAGE` to more accurately represent what's happening since the init message is always on by default

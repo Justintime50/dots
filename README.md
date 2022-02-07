@@ -23,8 +23,9 @@ Dots makes no assumptions as to how or where your dotfiles should be installed. 
 * Warns you when your Dotfiles are out of sync
 * Push, pull, install, and clean your Dotfiles
 * Setup your Dotfiles based on your own custom configuration
-* Support for `zsh`, `bash`, `sh`, `dash`, and `ksh`
-* Optionally prints info about your Dots on each shell start:
+* Support for `zsh`, `bash`, `sh`, `dash`, and `ksh` shells
+
+**Dots Init Message on Shell Start:**
 
 ```
 ################### Dots v1.0.0 ###################
@@ -45,7 +46,6 @@ To install Dots, simply drop it into your current Dotfiles project:
 * If installing Dots into your current Dotfiles project, follow step `1a`
 * If installing your Dotfiles on a new machine (assumes Dots is already in your Dotfiles project), follow step `1b`
 * Regardless of which part of step 1 you follow, run steps 2
-* Optionally set env vars in step 3
 
 ```bash
 # 1a) Add Dots as a git submodule in your Dotfiles project
@@ -56,11 +56,8 @@ git clone https://github.com/USERNAME/dotfiles.git "$HOME/.dotfiles"
 git -C "$HOME/.dotfiles" submodule init && git -C "$HOME/.dotfiles" submodule update
 
 # 2) Install Dots
-# Installation assumes your dotfiles are are stored at `~/.dotfiles`; if not, alter the `DOTFILES_DIR` variable in `install.sh`
+# Installation assumes your dotfiles are are stored at `~/.dotfiles`; if not, alter the `DOTFILES_DIR` environment variable prior to installation
 $HOME/.dotfiles/dots/src/install.sh
-
-# 3) Optionally set the dotfiles directory (defaults to ~/.dotfiles when not set explicitly)
-echo 'export DOTFILES_DIR=my/custom/path' >> ~/.zshrc
 ```
 
 ## Usage
