@@ -7,7 +7,7 @@
 ## v1.1.0 (2022-02-06)
 
 * Renames the `DOTS_SHOW_INIT_MESSAGE` to `DOTS_DISABLE_INIT_MESSAGE` to more accurately represent what's happening since the init message is always on by default
-* Clarifies instructions to setup a custom dotfiles during installation
+* Clarifies instructions to setup a custom dotfiles directory during installation
 * Various small tweaks internally
 
 ## v1.0.0 (2021-11-21)
