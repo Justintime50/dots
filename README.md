@@ -95,7 +95,7 @@ dots_update
 
 **Dots Shell Initialization Message**
 
-If you would like to disable the Dots message on shell start, simply set the `DOTS_DISABLE_INIT_MESSAGE` env var in your shell profile.
+If you would like to disable the Dots message on shell start, simply set the `DOTS_DISABLE_INIT_MESSAGE` env var in your shell profile. If you have recently disabled the init message, you may need to install/source your Dotfiles twice before the setting takes effect.
 
 ## Configuration
 

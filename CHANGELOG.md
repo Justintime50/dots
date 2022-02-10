@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.1.2 (2022-02-10)
+
+* Fixes a bug that inversed the check for `DOTS_DISABLE_INIT_MESSAGE` from the previous release
+
 ## v1.1.1 (2022-02-07)
 
 * Fixes a bug that didn't properly check if `DOTS_DISABLE_INIT_MESSAGE` was set or not
