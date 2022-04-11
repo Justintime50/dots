@@ -14,16 +14,16 @@ The simple, flexible, Dotfile manager.
 
 Dots is a simple Dotfile manager that is incredibly flexible. Your workflow is different from everyone else, why conform to an opinionated set of dotfile logic?
 
-Dots was created because projects such as [Dotbot](https://github.com/anishathalye/dotbot) only install/link your dotfiles but don't help you sync them across computers and projects while [Dotman](https://github.com/Bhupesh-V/dotman) only helps you sync your dotfiles but not actually install/link them. I needed a system that could do both.
+Dots was created because projects such as [Dotbot](https://github.com/anishathalye/dotbot) only install/link your dotfiles but don't help you sync them across computers and projects like [Dotman](https://github.com/Bhupesh-V/dotman) only help you sync your dotfiles but doesn't install/link them. I needed a system that could do both, thus Dots was born.
 
 Dots makes no assumptions as to how or where your dotfiles should be installed. Dots allows you to specify "Dotfiles as code", allowing you to craft any configuration of dotfiles that fits your needs. Simply provide a list of commands to run such as symlinking or moving your dotfiles around and Dots will take care of the rest.
 
 **Notable Features**
 
-* Warns you when your Dotfiles are out of sync
-* Push, pull, install, and clean your Dotfiles
-* Setup your Dotfiles based on your own custom configuration
-* Support for `zsh`, `bash`, `sh`, `dash`, and `ksh` shells
+- Warns you when your Dotfiles are out of sync
+- Push, pull, install, and clean your Dotfiles
+- Setup your Dotfiles based on your own custom configuration
+- Support for `zsh`, `bash`, `sh`, `dash`, and `ksh` shells
 
 **Dots Init Message on Shell Start:**
 
@@ -43,9 +43,9 @@ Dots will override your current Dotfiles, namely `~/.zshrc` for `zsh`, `~/.bash_
 
 To install Dots, simply drop it into your current Dotfiles project:
 
-* If installing Dots into your current Dotfiles project, follow step `1a`
-* If installing your Dotfiles on a new machine (assumes Dots is already in your Dotfiles project), follow step `1b`
-* Regardless of which part of step 1 you follow, run steps 2
+- If installing Dots into your current Dotfiles project, follow step `1a`
+- If installing your Dotfiles on a new machine (assumes Dots is already in your Dotfiles project), follow step `1b`
+- Regardless of which part of step 1 you follow, run step 2
 
 ```bash
 # 1a) Add Dots as a git submodule in your Dotfiles project
@@ -95,7 +95,7 @@ dots_update
 
 **Dots Shell Initialization Message**
 
-If you would like to disable the Dots message on shell start, simply set the `DOTS_DISABLE_INIT_MESSAGE` env var in your shell profile. If you have recently disabled the init message, you may need to install/source your Dotfiles twice before the setting takes effect.
+If you would like to disable the Dots message on shell start, simply set the `DOTS_DISABLE_INIT_MESSAGE` env var in your shell profile. **If you have recently disabled the init message, you may need to install/source your Dotfiles twice before the setting takes effect.**
 
 ## Configuration
 
