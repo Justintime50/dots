@@ -2,6 +2,10 @@
 
 # shellcheck disable=SC1090,SC1091,SC2148
 
+# User configurable variables (must remain in this file)
+DOTFILES_DIR="$HOME/.dotfiles" # Cannot be `~/.dots` as we will use this for internal Dots usage
+DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
+
 # Dots required variables (DO NOT EDIT)
 DOTS_VERSION="v1.1.2"
 HOSTNAME="$(hostname)" # Required for macOS as it's not set automatically like it is on Linux

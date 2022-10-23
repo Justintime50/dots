@@ -4,7 +4,6 @@
 
 - `dots_config_up` is now called `dots_config_setup`
 - `dots_config_down` is now called `dots_config_teardown`
-- Shuffles a few shared variables to the `shared.sh` file so both the installer and dots can take advantage of them
 
 ## v1.1.2 (2022-02-10)
 
