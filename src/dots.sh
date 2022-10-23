@@ -103,20 +103,20 @@ _dots_reset_terminal_config() {
 
 # Save the installation steps to a log
 _dots_log_install_step() {
-    # The `dots_config_setup` command is sourced from "$DOTS_CONFIG_FILE":
+    # The `dots_config_up` command is sourced from "$DOTS_CONFIG_FILE":
     {
         set -x
-        dots_config_setup
+        dots_config_up
         set +x
     } 2>"$DOTS_HOME_DIR/install.log"
 }
 
 # Save the clean steps to a log
 _dots_log_clean_step() {
-    # The `dots_config_teardown` command is sourced from "$DOTS_CONFIG_FILE":
+    # The `dots_config_down` command is sourced from "$DOTS_CONFIG_FILE":
     {
         set -x
-        dots_config_teardown
+        dots_config_down
         set +x
     } 2>"$DOTS_HOME_DIR/clean.log"
 }

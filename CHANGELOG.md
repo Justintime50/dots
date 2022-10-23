@@ -1,10 +1,5 @@
 # CHANGELOG
 
-## NEXT RELEASE
-
-- `dots_config_up` is now called `dots_config_setup`
-- `dots_config_down` is now called `dots_config_teardown`
-
 ## v1.1.2 (2022-02-10)
 
 - Fixes a bug that inversed the check for `DOTS_DISABLE_INIT_MESSAGE` from the previous release
