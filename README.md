@@ -18,7 +18,7 @@ Dots was created because projects such as [Dotbot](https://github.com/anishathal
 
 Dots makes no assumptions as to how or where your dotfiles should be installed. Dots allows you to specify "Dotfiles as code", allowing you to craft any configuration of dotfiles that fits your needs. Simply provide a list of commands to run such as symlinking or moving your dotfiles around and Dots will take care of the rest.
 
-**Notable Features**
+## Notable Features
 
 - Warns you when your Dotfiles are out of sync
 - Push, pull, install, and clean your Dotfiles
@@ -39,7 +39,7 @@ Dotfiles status:
 
 ## Install
 
-Dots will override your current Dotfiles, namely `~/.zshrc` for `zsh`, `~/.bash_profile` for `bash` and `~/.profile` for `sh`, `dash`, and `ksh` shells. Dots will create a blank shell config file and source your remaining files into it. See [Configuration](#Configuration) below for more details.
+Dots will override your current Dotfiles, namely `~/.zshrc` for `zsh`, `~/.bash_profile` for `bash` and `~/.profile` for `sh`, `dash`, and `ksh` shells. Dots will create a blank shell config file and source your remaining files into it. See [Configuration](#configuration) below for more details.
 
 To install Dots, simply drop it into your current Dotfiles project:
 
@@ -93,9 +93,11 @@ dots_list
 dots_update
 ```
 
-**Dots Shell Initialization Message**
+### Dots Shell Initialization Message
 
-If you would like to disable the Dots message on shell start, simply set the `DOTS_DISABLE_INIT_MESSAGE` env var in your shell profile. **If you have recently disabled the init message, you may need to install/source your Dotfiles twice before the setting takes effect.**
+If you would like to disable the Dots message on shell start, simply set the `DOTS_DISABLE_INIT_MESSAGE` env var in your shell profile.
+
+**NOTE:** If you have recently disabled the init message, you will need to install and source your Dotfiles twice before this setting will take effect due to an order of operations with sourcing this variable. If you are re-enabling the init message by removing this env var, you may need to install and source your Dotfiles twice and start a new shell before it will reappear.
 
 ## Configuration
 

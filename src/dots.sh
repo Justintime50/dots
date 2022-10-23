@@ -2,11 +2,7 @@
 
 # shellcheck disable=SC1090,SC1091,SC2148
 
-# User configurable variables
-DOTFILES_DIR="$HOME/.dotfiles" # Cannot be `~/.dots` as we will use this for internal Dots usage
-DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
-
-# Dots required variables (do not edit)
+# Dots required variables (DO NOT EDIT)
 DOTS_VERSION="v1.1.2"
 HOSTNAME="$(hostname)" # Required for macOS as it's not set automatically like it is on Linux
 DOTS_HOME_DIR="$HOME/.dots"
@@ -64,7 +60,7 @@ _dots_init() {
     if _dots_check_shell; then
         # Source anything that's required for the installer and dots such as `_dots_set_shell_config_file`
         . "$DOTS_DIR/shared.sh"
-        _dots_set_shell_config_file # Sourced from `shared.sh`
+        _dots_set_shell_config_file
 
         mkdir -p "$DOTS_HOME_DIR"
     else

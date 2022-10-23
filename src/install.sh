@@ -4,12 +4,8 @@
 
 # shellcheck disable=SC1090,SC1091
 
-DOTFILES_DIR="$HOME/.dotfiles"
-DOTS_DIR="$DOTFILES_DIR/dots/src"
-DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
-
 main() {
-    # Sets SHELL_CONFIG_FILE for our use
+    # Sources various variables needed for this script
     . "$DOTS_DIR/shared.sh"
     _dots_set_shell_config_file # Sourced from `shared.sh`
 
