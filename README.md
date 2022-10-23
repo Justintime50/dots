@@ -71,7 +71,7 @@ dots_push
 # Pull new Dotfile changes
 dots_pull
 
-# Install Dotfiles (uses `up` function in dots-config.sh)
+# Install Dotfiles (uses `dots_config_setup` function in dots-config.sh)
 dots_install
 
 # Source all new Dotfiles
@@ -80,7 +80,7 @@ dots_source
 # Pull/push/install/source Dotfile changes
 dots_sync
 
-# Clean Dotfiles (uses `down` function in dots-config.sh)
+# Clean Dotfiles (uses `dots_config_teardown` function in dots-config.sh)
 dots_clean
 
 # Get the status of the dotfiles
@@ -97,11 +97,11 @@ dots_update
 
 If you would like to disable the Dots message on shell start, simply set the `DOTS_DISABLE_INIT_MESSAGE` env var in your shell profile.
 
-**NOTE:** If you have recently disabled the init message, you will need to install and source your Dotfiles twice before this setting will take effect due to an order of operations with sourcing this variable. If you are re-enabling the init message by removing this env var, you may need to install and source your Dotfiles twice and start a new shell before it will reappear.
+**NOTE:** If you have recently disabled the init message, you will need to install and source your Dotfiles twice before this setting will take effect due to a shortcoming in the order of operations used with sourcing this variable. If you are re-enabling the init message by removing this env var, you may need to install and source your Dotfiles twice and start a new shell before it will reappear.
 
 ## Configuration
 
-The only thing Dots requires for configuration is a file in the root of your Dotfiles project titled `dots-config.sh` with two functions. Inspired by database migration syntax, we provide a list of instructions (up and down) to install or clean our Dotfiles. A simple example is shown below:
+Dots requires a single file for configuration in the root of your Dotfiles project titled `dots-config.sh` with two functions. Inspired by database migration syntax, we provide a list of instructions (`setup` and `teardown`) to install or clean our Dotfiles. A simple example is shown below:
 
 ### Basic Configuration
 
@@ -109,12 +109,12 @@ The only thing Dots requires for configuration is a file in the root of your Dot
 # The variable "DOTFILES_DIR" is available to use here (points to $HOME/.dotfiles by default)
 
 # Instructions run when installing/updating Dotfiles
-dots_config_up() {
+dots_config_setup() {
     ln -sfn "$DOTFILES_DIR"/src/personal/home/.gitconfig "$HOME"/.gitconfig
 }
 
 # Instructions run when cleaning Dotfiles
-dots_config_down() {
+dots_config_teardown() {
     rm "$HOME"/.gitconfig
 }
 ```
@@ -125,7 +125,7 @@ dots_config_down() {
 # The variable "DOTFILES_DIR" is available to use here (points to $HOME/.dotfiles by default)
 
 # Instructions run when installing/updating Dotfiles
-dots_config_up() {
+dots_config_setup() {
     # Specifying a hostname is completely optional, but an effective way to ensure
     # computer-specific Dotfiles are installed properly. One config file can setup
     # multiple computers depending on their HOSTNAME
@@ -143,7 +143,7 @@ dots_config_up() {
 }
 
 # Instructions run when cleaning Dotfiles
-dots_config_down() {
+dots_config_teardown() {
     if [[ "$HOSTNAME" == "MacBook-Pro-Justin" ]] ; then
         rm -i "$HOME"/.gitconfig
         # .zshrc taken care of by Dots
