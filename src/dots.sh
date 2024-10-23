@@ -7,7 +7,7 @@ DOTFILES_DIR="$HOME/.dotfiles" # Cannot be `~/.dots` as we will use this for int
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
 
 # Dots required variables (DO NOT EDIT)
-DOTS_VERSION="v1.1.2"
+DOTS_VERSION="v1.2.0"
 HOSTNAME="$(hostname)" # Required for macOS as it's not set automatically like it is on Linux
 DOTS_HOME_DIR="$HOME/.dots"
 DOTS_DIR="$DOTFILES_DIR/dots/src"
