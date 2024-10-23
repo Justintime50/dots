@@ -155,7 +155,7 @@ dots_install() {
 # Cleans dotfiles based on the Dots config file
 dots_clean() {
     echo "Dots is about to clean your Dotfiles. Press any key to continue."
-    read -r
+    read -r _
 
     if _dots_check_config_file; then
         _dots_reset_terminal_config
@@ -173,7 +173,7 @@ dots_status() {
 # Syncs dotfiles from your local machine to and from your dotfiles repo
 dots_sync() {
     echo "Dots is about to sync your Dotfiles, this process may override your current Dotfiles. Press any key to continue."
-    read -r
+    read -r _
 
     dots_pull
     dots_push
