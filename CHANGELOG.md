@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.2.0 (2024-10-23)
+
+- Adds `DOTS_DISABLE_DOTFILES_STATUS` allowing bypass of the git status check on shell startup while maintaining the init message of Dots
+
 ## v1.1.2 (2022-02-10)
 
 - Fixes a bug that inversed the check for `DOTS_DISABLE_INIT_MESSAGE` from the previous release

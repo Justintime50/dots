@@ -97,6 +97,8 @@ dots_update
 
 If you would like to disable the Dots message on shell start, simply set the `DOTS_DISABLE_INIT_MESSAGE` env var in your shell profile.
 
+If you want to keep the init message but just disable git checking the status of your dotfiles, set the `DOTS_DISABLE_DOTFILES_STATUS` env var instead.
+
 **NOTE:** If you have recently disabled the init message, you will need to install and source your Dotfiles twice before this setting will take effect due to a shortcoming in the order of operations used with sourcing this variable. If you are re-enabling the init message by removing this env var, you may need to install and source your Dotfiles twice and start a new shell before it will reappear.
 
 ## Configuration

@@ -77,9 +77,11 @@ _dots_init_message() {
     echo "################### Dots $DOTS_VERSION ###################"
     echo "Shell: $SHELL"
     echo "Hostname: $HOSTNAME" # We print Hostname here to assist with multi-machine Dotfile management
-    echo ""
-    echo "Dotfiles status:"
-    _dots_get_dotfiles_status
+    if [ -z "$DOTS_DISABLE_DOTFILES_STATUS" ]; then
+        echo ""
+        echo "Dotfiles status:"
+        _dots_get_dotfiles_status
+    fi
     echo "###################################################"
 }
 
