@@ -49,11 +49,10 @@ _dots_check_shell_config_file() {
 
 # Ensures we only check the status of the dotfiles if they haven't been checked on this boot or once every 72 hours
 _dots_check_status() {
-    local dots_status_check_filepath
-    dots_status_check_filepath="/tmp/dots_check_status"
+    _dots_check_status_filepath="/tmp/dots_check_status"
 
-    if [ ! -f "$dots_status_check_filepath" ] || [ "$(find "$dots_status_check_filepath" -mmin +$((72 * 60)) 2>/dev/null | wc -l)" -gt 0 ]; then
-        touch $dots_status_check_filepath
+    if [ ! -f "$_dots_check_status_filepath" ] || [ "$(find "$_dots_check_status_filepath" -mmin +$((72 * 60)) 2>/dev/null | wc -l)" -gt 0 ]; then
+        touch $_dots_check_status_filepath
     else
         return 1
     fi
