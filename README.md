@@ -27,7 +27,7 @@ Dots makes no assumptions as to how or where your dotfiles should be installed. 
 
 **Dots Init Message on Shell Start:**
 
-```
+```text
 ################### Dots v1.0.0 ###################
 Shell: /bin/zsh
 Hostname: MacBook-Pro-Justin

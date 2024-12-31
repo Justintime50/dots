@@ -7,7 +7,7 @@ DOTFILES_DIR="$HOME/.dotfiles" # Cannot be `~/.dots` as we will use this for int
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
 
 # Dots required variables (DO NOT EDIT)
-DOTS_VERSION="v1.2.0"
+DOTS_VERSION="v1.2.1"
 HOSTNAME="$(hostname)" # Required for macOS as it's not set automatically like it is on Linux
 DOTS_HOME_DIR="$HOME/.dots"
 DOTS_DIR="$DOTFILES_DIR/dots/src"
@@ -47,6 +47,18 @@ _dots_check_shell_config_file() {
     fi
 }
 
+# Ensures we only check the status of the dotfiles if they haven't been checked on this boot or once every 72 hours
+_dots_check_status() {
+    local dots_status_check_filepath
+    dots_status_check_filepath="/tmp/dots_check_status"
+
+    if [ ! -f "$dots_status_check_filepath" ] || [ "$(find "$dots_status_check_filepath" -mmin +$((72 * 60)) 2>/dev/null | wc -l)" -gt 0 ]; then
+        touch $dots_status_check_filepath
+    else
+        return 1
+    fi
+}
+
 ### HELPERS ###
 
 # Checks that dotfiles are up to date each time a terminal starts
@@ -74,15 +86,17 @@ _dots_init() {
 
 # Print Dotfiles message on each shell start (will be initialized from core shell file)
 _dots_init_message() {
-    echo "################### Dots $DOTS_VERSION ###################"
+    echo "################ Dots $DOTS_VERSION ################"
     echo "Shell: $SHELL"
     echo "Hostname: $HOSTNAME" # We print Hostname here to assist with multi-machine Dotfile management
     if [ -z "$DOTS_DISABLE_DOTFILES_STATUS" ]; then
-        echo ""
-        echo "Dotfiles status:"
-        _dots_get_dotfiles_status
+        if _dots_check_status; then
+            echo ""
+            echo "Dotfiles status:"
+            _dots_get_dotfiles_status
+        fi
     fi
-    echo "###################################################"
+    echo "#############################################"
 }
 
 # Resets the `~/.zshrc`, `~/.bash_profile`, or `~/.profile` files to only contain Dots and the config

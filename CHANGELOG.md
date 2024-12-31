@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.2.1 (2024-12-30)
+
+- Dotfile checking was previously too aggressive on every shell invocation which lead to slow shell starts. Dots will now only check the dotfiles status on first boot and once every 72 hours after that if machine stays on
+
 ## v1.2.0 (2024-10-23)
 
 - Adds `DOTS_DISABLE_DOTFILES_STATUS` allowing bypass of the git status check on shell startup while maintaining the init message of Dots
