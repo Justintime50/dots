@@ -86,6 +86,9 @@ dots_clean
 # Get the status of the dotfiles
 dots_status
 
+# Get the diff of the dotfiles
+dots_diff
+
 # Show the list of dotfiles installed
 dots_list
 

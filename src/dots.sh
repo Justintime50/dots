@@ -7,7 +7,7 @@ DOTFILES_DIR="$HOME/.dotfiles" # Cannot be `~/.dots` as we will use this for int
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
 
 # Dots required variables (DO NOT EDIT)
-DOTS_VERSION="v1.2.1"
+DOTS_VERSION="v1.3.0"
 HOSTNAME="$(hostname)" # Required for macOS as it's not set automatically like it is on Linux
 DOTS_HOME_DIR="$HOME/.dots"
 DOTS_DIR="$DOTFILES_DIR/dots/src"
@@ -181,6 +181,11 @@ dots_clean() {
 dots_status() {
     git -C "$DOTFILES_DIR" remote update >/dev/null 2>&1 || echo "Error updating from remote Dotfiles"
     git -C "$DOTFILES_DIR" status -s -b || echo "Couldn't check remote Dotfiles"
+}
+
+# Gets the diff of dotfiles
+dots_diff() {
+    git -C "$DOTFILES_DIR" diff
 }
 
 # Syncs dotfiles from your local machine to and from your dotfiles repo

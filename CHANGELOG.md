@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.3.0 (2025-01-03)
+
+- Adds `dots_diff` as a command to see what dotfiles have changed
+
 ## v1.2.1 (2024-12-30)
 
 - Dotfile checking was previously too aggressive on every shell invocation which lead to slow shell starts. Dots will now only check the dotfiles status on first boot and once every 72 hours after that if machine stays on
