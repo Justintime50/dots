@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.3.1 (2025-01-10)
+
+- Makes various changes to how Dotfiles are sourced providing a vastly improved experience, ensuring that Dotfiles are fetched on every shell but without requiring the user to wait for that lengthy process
+  - Use `git fetch` instead of `git remote update` to cut down on checked branches
+  - Only recurse through submodules if changed, on-demand
+  - Removed the temp dots timestamp file and concept added in v1.2.1 which was prone to failure due to VS Code ([closes #9](https://github.com/Justintime50/dots/issues/9))
+  - Run `git fetch` in a suppressed subshell, allowing for shells to startup fast without waiting for that process to finalize. This ensures that every subsequent shell will show the dotfiles status if it differs
+
 ## v1.3.0 (2025-01-03)
 
 - Adds `dots_diff` as a command to see what dotfiles have changed

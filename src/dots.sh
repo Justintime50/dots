@@ -7,7 +7,7 @@ DOTFILES_DIR="$HOME/.dotfiles" # Cannot be `~/.dots` as we will use this for int
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
 
 # Dots required variables (DO NOT EDIT)
-DOTS_VERSION="v1.3.0"
+DOTS_VERSION="v1.3.1"
 HOSTNAME="$(hostname)" # Required for macOS as it's not set automatically like it is on Linux
 DOTS_HOME_DIR="$HOME/.dots"
 DOTS_DIR="$DOTFILES_DIR/dots/src"
@@ -47,17 +47,6 @@ _dots_check_shell_config_file() {
     fi
 }
 
-# Ensures we only check the status of the dotfiles if they haven't been checked on this boot or once every 72 hours
-_dots_check_status() {
-    _dots_check_status_filepath="/tmp/dots_check_status"
-
-    if [ ! -f "$_dots_check_status_filepath" ] || [ "$(find "$_dots_check_status_filepath" -mmin +$((72 * 60)) 2>/dev/null | wc -l)" -gt 0 ]; then
-        touch $_dots_check_status_filepath
-    else
-        return 1
-    fi
-}
-
 ### HELPERS ###
 
 # Checks that dotfiles are up to date each time a terminal starts
@@ -89,11 +78,9 @@ _dots_init_message() {
     echo "Shell: $SHELL"
     echo "Hostname: $HOSTNAME" # We print Hostname here to assist with multi-machine Dotfile management
     if [ -z "$DOTS_DISABLE_DOTFILES_STATUS" ]; then
-        if _dots_check_status; then
-            echo ""
-            echo "Dotfiles status:"
-            _dots_get_dotfiles_status
-        fi
+        echo ""
+        echo "Dotfiles status:"
+        _dots_get_dotfiles_status
     fi
     echo "#############################################"
 }
@@ -179,8 +166,8 @@ dots_clean() {
 
 # Gets the status of dotfiles
 dots_status() {
-    git -C "$DOTFILES_DIR" remote update >/dev/null 2>&1 || echo "Error updating from remote Dotfiles"
-    git -C "$DOTFILES_DIR" status -s -b || echo "Couldn't check remote Dotfiles"
+    (git -C "$DOTFILES_DIR" fetch --recurse-submodules=on-demand >/dev/null 2>&1 &)
+    git -C "$DOTFILES_DIR" status -sb || echo "Couldn't check remote Dotfiles"
 }
 
 # Gets the diff of dotfiles
