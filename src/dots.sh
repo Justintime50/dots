@@ -166,6 +166,7 @@ dots_clean() {
 
 # Gets the status of dotfiles
 dots_status() {
+    # Fetch the changes in the background (subprocess) to avoid locking the terminal, will show updates on next run
     (git -C "$DOTFILES_DIR" fetch --recurse-submodules=on-demand >/dev/null 2>&1 &)
     git -C "$DOTFILES_DIR" status -sb || echo "Couldn't check remote Dotfiles"
 }
