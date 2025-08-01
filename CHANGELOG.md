@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v2.0.0 (2025-08-01)
+
+- Dots no longer shows a confirmation prompt when syncing or cleaning dotfiles. You ran the command, you intended to do those actions.
+
 ## v1.3.1 (2025-01-10)
 
 - Makes various changes to how dotfiles are sourced providing a vastly improved experience, ensuring that dotfiles are fetched on every shell but without requiring the user to wait for that lengthy process

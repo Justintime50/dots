@@ -7,7 +7,7 @@ DOTFILES_DIR="$HOME/.dotfiles" # Cannot be `~/.dots` as we will use this for int
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
 
 # Dots required variables (DO NOT EDIT)
-DOTS_VERSION="v1.3.1"
+DOTS_VERSION="v2.0.0"
 HOSTNAME="$(hostname)" # Required for macOS as it's not set automatically like it is on Linux
 DOTS_HOME_DIR="$HOME/.dots"
 DOTS_DIR="$DOTFILES_DIR/dots/src"
@@ -154,9 +154,6 @@ dots_install() {
 
 # Cleans dotfiles based on the Dots config file
 dots_clean() {
-    echo "Dots is about to clean your Dotfiles. Press any key to continue."
-    read -r _
-
     if _dots_check_config_file; then
         _dots_reset_terminal_config
         echo "Cleaning dotfiles..."
@@ -178,9 +175,6 @@ dots_diff() {
 
 # Syncs dotfiles from your local machine to and from your dotfiles repo
 dots_sync() {
-    echo "Dots is about to sync your Dotfiles, this process may override your current Dotfiles. Press any key to continue."
-    read -r _
-
     dots_pull
     dots_push
     dots_install

@@ -28,9 +28,9 @@ Dots makes no assumptions as to how or where your dotfiles should be installed. 
 **Dots Init Message on Shell Start:**
 
 ```text
-################### Dots v1.0.0 ###################
+################### Dots v2.0.0 ###################
 Shell: /bin/zsh
-Hostname: MacBook-Pro-Justin
+Hostname: mbp-justin
 
 Dotfiles status:
 ## main...origin/main [behind 1]
@@ -134,13 +134,13 @@ dots_config_up() {
     # Specifying a hostname is completely optional, but an effective way to ensure
     # computer-specific Dotfiles are installed properly. One config file can setup
     # multiple computers depending on their HOSTNAME
-    if [[ "$HOSTNAME" == "MacBook-Pro-Justin" ]] ; then
+    if [[ "$HOSTNAME" == "mbp-justin" ]] ; then
         ln -sfn "$DOTFILES_DIR"/src/personal/home/.gitconfig "$HOME"/.gitconfig
         echo ". $DOTFILES_DIR/src/personal/home/.zshrc" >> "$HOME"/.zshrc
         # Your list can be as long as you'd like
     fi
 
-    if [[ "$HOSTNAME" == "Work-Computer" ]] ; then
+    if [[ "$HOSTNAME" == "mbp-justin-work" ]] ; then
         ln -sfn "$DOTFILES_DIR"/src/work/home/.gitconfig "$HOME"/.gitconfig
         echo ". $DOTFILES_DIR/src/work/home/.zshrc" >> "$HOME"/.zshrc
         # Your list can be as long as you'd like
@@ -149,12 +149,12 @@ dots_config_up() {
 
 # Instructions run when cleaning Dotfiles
 dots_config_down() {
-    if [[ "$HOSTNAME" == "MacBook-Pro-Justin" ]] ; then
+    if [[ "$HOSTNAME" == "mbp-justin" ]] ; then
         rm -i "$HOME"/.gitconfig
         # .zshrc taken care of by Dots
     fi
 
-    if [[ "$HOSTNAME" == "Work-Computer" ]] ; then
+    if [[ "$HOSTNAME" == "mbp-justin-work" ]] ; then
         rm -i "$HOME"/.gitconfig
         # .zshrc taken care of by Dots
     fi
