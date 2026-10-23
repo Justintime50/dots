@@ -7,7 +7,7 @@ DOTFILES_DIR="$HOME/.dotfiles" # Cannot be `~/.dots` as we will use this for int
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
 
 # Dots required variables (DO NOT EDIT)
-DOTS_VERSION="v2.0.0"
+DOTS_VERSION="v2.1.0"
 HOSTNAME="$(hostname)" # Required for macOS as it's not set automatically like it is on Linux
 DOTS_HOME_DIR="$HOME/.dots"
 DOTS_DIR="$DOTFILES_DIR/dots/src"
@@ -123,41 +123,76 @@ _dots_log_clean_step() {
     } 2>"$DOTS_HOME_DIR/clean.log"
 }
 
+### GIT ###
+
+# Run a git command in the dotfiles repo quietly, logging output for debugging
+_dots_git() {
+    mkdir -p "$DOTS_HOME_DIR"
+    git -C "$DOTFILES_DIR" "$@" >>"$DOTS_HOME_DIR/sync.log" 2>&1
+}
+
+# Stage and commit local changes, if any
+_dots_commit() {
+    git_dir="$(git -C "$DOTFILES_DIR" rev-parse --absolute-git-dir)" || return 1
+    if [ -d "$git_dir/rebase-merge" ] || [ -d "$git_dir/rebase-apply" ] || [ -n "$(git -C "$DOTFILES_DIR" ls-files -u)" ]; then
+        echo "A rebase or merge conflict is unresolved in $DOTFILES_DIR, resolve it before syncing" >>"$DOTS_HOME_DIR/sync.log"
+        return 1
+    fi
+    _dots_git add -A || return 1
+    _dots_git diff --cached --quiet && return 0
+    _dots_git commit -m "Updated dotfiles"
+}
+
 ### INTERFACES ###
 
 # Push Dotfiles up to the Git server
 dots_push() {
-    if _dots_check_dotfiles_dir; then
-        echo "Pushing dotfiles..."
-        git -C "$DOTFILES_DIR" add .
-        git -C "$DOTFILES_DIR" commit -m "Updated dotfiles"
-        git -C "$DOTFILES_DIR" push >/dev/null 2>&1 && echo "Dotfiles pushed!" || echo "Error pushing Dotfiles"
+    _dots_check_dotfiles_dir || return 1
+    echo "Pushing dotfiles..."
+    if _dots_commit && _dots_git push; then
+        echo "Dotfiles pushed!"
+    else
+        echo "Error pushing Dotfiles"
+        return 1
     fi
 }
 
 # Pull updates from the Dotfiles project
 dots_pull() {
-    if _dots_check_dotfiles_dir; then
-        echo "Pulling dotfiles..."
-        git -C "$DOTFILES_DIR" pull --rebase >/dev/null 2>&1 && echo "Dotfiles pulled!" || echo "Error pulling Dotfiles"
+    _dots_check_dotfiles_dir || return 1
+    echo "Pulling dotfiles..."
+    if _dots_git pull --rebase --autostash --recurse-submodules &&
+        _dots_git submodule update --init --recursive; then
+        echo "Dotfiles pulled!"
+    else
+        echo "Error pulling Dotfiles"
+        return 1
     fi
 }
 
 # Installs dotfiles based on the Dots config file
 dots_install() {
-    if _dots_check_config_file; then
-        _dots_reset_terminal_config
-        echo "Installing dotfiles..."
-        _dots_log_install_step && echo "Dotfiles installed!" || echo "Error installing Dotfiles"
+    _dots_check_config_file || return 1
+    _dots_reset_terminal_config
+    echo "Installing dotfiles..."
+    if _dots_log_install_step; then
+        echo "Dotfiles installed!"
+    else
+        echo "Error installing Dotfiles"
+        return 1
     fi
 }
 
 # Cleans dotfiles based on the Dots config file
 dots_clean() {
-    if _dots_check_config_file; then
-        _dots_reset_terminal_config
-        echo "Cleaning dotfiles..."
-        _dots_log_clean_step && echo "Dotfiles cleaned!" || echo "Error cleaning Dotfiles"
+    _dots_check_config_file || return 1
+    _dots_reset_terminal_config
+    echo "Cleaning dotfiles..."
+    if _dots_log_clean_step; then
+        echo "Dotfiles cleaned!"
+    else
+        echo "Error cleaning Dotfiles"
+        return 1
     fi
 }
 
@@ -174,11 +209,22 @@ dots_diff() {
 }
 
 # Syncs dotfiles from your local machine to and from your dotfiles repo
+# Commits local changes first, then rebases onto the remote, then pushes, stopping at the first failure
 dots_sync() {
-    dots_pull
-    dots_push
-    dots_install
-    dots_source
+    _dots_check_dotfiles_dir || return 1
+    mkdir -p "$DOTS_HOME_DIR" && : >"$DOTS_HOME_DIR/sync.log"
+    echo "Syncing dotfiles..."
+    if ! {
+        _dots_commit &&
+            _dots_git pull --rebase --recurse-submodules &&
+            _dots_git submodule update --init --recursive &&
+            _dots_git push
+    }; then
+        echo "Error syncing Dotfiles, see $DOTS_HOME_DIR/sync.log"
+        return 1
+    fi
+    echo "Dotfiles synced!"
+    dots_install && dots_source
 }
 
 # Sources the shell

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v2.1.0 (2026-10-22)
+
+- `dots_sync` now commits local changes first, then pulls with a rebase, then pushes, stopping at the first failed step. It also refuses to run while a rebase is unresolved. Local work is never left uncommitted during a pull and nothing is pushed on top of a failed rebase
+- Git behavior is passed explicitly (`--rebase`, `--recurse-submodules`) so syncing no longer depends on a user's git config, and submodules are kept checked out at their recorded commits
+- Git output for push, pull, and sync is now logged to `~/.dots/sync.log` instead of being discarded
+- Committing is skipped when there are no changes instead of erroring
+- `dots_push`, `dots_pull`, `dots_install`, `dots_clean`, and `dots_sync` now return a non-zero exit code on failure
+
 ## v2.0.0 (2025-08-01)
 
 - Dots no longer shows a confirmation prompt when syncing or cleaning dotfiles. You ran the command, you intended to do those actions.
