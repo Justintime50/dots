@@ -15,8 +15,8 @@ main() {
     _dots_set_shell_config_file # Sourced from `shared.sh`
 
     # Add Dots as a sourced script to your current shell config (running this install script will overwrite your shell config file)
-    echo ". $(_dots_quote "$DOTS_DIR/dots.sh")" >>"$SHELL_CONFIG_FILE"
-    echo ". $(_dots_quote "$DOTS_CONFIG_FILE")" >>"$SHELL_CONFIG_FILE"
+    printf '. %s\n' "$(_dots_quote "$DOTS_DIR/dots.sh")" >"$SHELL_CONFIG_FILE"
+    printf '. %s\n' "$(_dots_quote "$DOTS_CONFIG_FILE")" >>"$SHELL_CONFIG_FILE"
 
     # Source the SHELL_CONFIG_FILE so we can call `dots_sync`
     . "$SHELL_CONFIG_FILE"

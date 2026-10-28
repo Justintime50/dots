@@ -91,8 +91,8 @@ _dots_reset_terminal_config() {
     if _dots_init; then
         {
             echo "# Dots Config (automatically set, do not edit)"
-            echo ". $(_dots_quote "$DOTS_SCRIPT_FILE")"
-            echo ". $(_dots_quote "$DOTS_CONFIG_FILE")"
+            printf '. %s\n' "$(_dots_quote "$DOTS_SCRIPT_FILE")"
+            printf '. %s\n' "$(_dots_quote "$DOTS_CONFIG_FILE")"
             echo "_dots_init"
             if [ -z "$DOTS_DISABLE_INIT_MESSAGE" ]; then
                 echo "_dots_init_message"
@@ -147,13 +147,12 @@ _dots_check_clean_tree() {
 # Succeeds if a rebase is in progress or there are unmerged files in the dotfiles repo
 # This file is sourced, so variables are prefixed and unset to avoid leaking into the user's shell (no `local` in POSIX)
 _dots_has_conflict() {
-    for _dots_rebase_dir in rebase-merge rebase-apply; do
-        if [ -d "$(git -C "$DOTFILES_DIR" rev-parse --path-format=absolute --git-path "$_dots_rebase_dir" 2>>"$DOTS_HOME_DIR/sync.log")" ]; then
-            unset _dots_rebase_dir
-            return 0
-        fi
-    done
-    unset _dots_rebase_dir
+    _dots_git_dir="$(git -C "$DOTFILES_DIR" rev-parse --absolute-git-dir 2>>"$DOTS_HOME_DIR/sync.log")"
+    if [ -n "$_dots_git_dir" ] && { [ -d "$_dots_git_dir/rebase-merge" ] || [ -d "$_dots_git_dir/rebase-apply" ]; }; then
+        unset _dots_git_dir
+        return 0
+    fi
+    unset _dots_git_dir
     [ -n "$(git -C "$DOTFILES_DIR" ls-files -u 2>>"$DOTS_HOME_DIR/sync.log")" ]
 }
 

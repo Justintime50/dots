@@ -8,7 +8,9 @@
 - Committing is skipped when there are no changes instead of erroring
 - `dots_push`, `dots_pull`, `dots_install`, `dots_clean`, and `dots_sync` now return a non-zero exit code on failure. `dots_sync` still installs and sources dotfiles when a git step fails (eg: offline), unless a rebase or merge conflict is unresolved
 - `ksh` (`/bin/ksh`) is now treated as a supported shell. Previously a bad comparison rejected it while letting unsupported shells through
-- Paths written to your shell config by `dots_install`, `dots_clean`, and the installer are now quoted, so Dots loads when `$HOME` contains a space or quote
+- Paths written to your shell config by `dots_install`, `dots_clean`, and the installer are now quoted, so Dots loads when `$HOME` contains a space, quote, or backslash
+- The installer now overwrites your shell config instead of appending to it, as documented
+- Detecting an unresolved rebase no longer requires git 2.31+
 
 ## v2.0.0 (2025-08-01)
 

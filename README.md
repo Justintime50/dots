@@ -136,13 +136,13 @@ dots_config_up() {
     # multiple computers depending on their HOSTNAME
     if [[ "$HOSTNAME" == "mbp-justin" ]] ; then
         ln -sfn "$DOTFILES_DIR"/src/personal/home/.gitconfig "$HOME"/.gitconfig
-        echo ". \"$DOTFILES_DIR/src/personal/home/.zshrc\"" >> "$HOME"/.zshrc
+        printf '. "%s"\n' "$DOTFILES_DIR/src/personal/home/.zshrc" >> "$HOME"/.zshrc # The double quotes handle spaces in paths
         # Your list can be as long as you'd like
     fi
 
     if [[ "$HOSTNAME" == "mbp-justin-work" ]] ; then
         ln -sfn "$DOTFILES_DIR"/src/work/home/.gitconfig "$HOME"/.gitconfig
-        echo ". \"$DOTFILES_DIR/src/work/home/.zshrc\"" >> "$HOME"/.zshrc
+        printf '. "%s"\n' "$DOTFILES_DIR/src/work/home/.zshrc" >> "$HOME"/.zshrc
         # Your list can be as long as you'd like
     fi
 }
