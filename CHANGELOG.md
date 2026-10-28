@@ -3,10 +3,10 @@
 ## v2.1.0 (2026-10-28)
 
 - `dots_sync` now commits local changes first, then pulls with a rebase, then pushes, stopping at the first failed step. It also refuses to run while a rebase is unresolved. Local work is never left uncommitted during a pull and nothing is pushed on top of a failed rebase
-- Git behavior is passed explicitly (`--rebase`) so syncing no longer depends on a user's git config, and submodules are updated to their recorded commits after each pull. Uncommitted changes (including submodule bumps) make `dots_pull` fail instead of being stashed
+- Git behavior is passed explicitly (`--rebase`) so syncing no longer depends on a user's git config, and submodules are updated to their recorded commits after each pull. Uncommitted changes (including submodule pointer bumps) make `dots_pull` fail instead of being stashed, while edits inside a submodule's own working tree are left alone
 - Git output for push, pull, and sync is now logged to `~/.dots/sync.log` instead of being discarded
 - Committing is skipped when there are no changes instead of erroring
-- `dots_push`, `dots_pull`, `dots_install`, `dots_clean`, and `dots_sync` now return a non-zero exit code on failure. `dots_sync` still installs and sources dotfiles when a git step fails (eg: offline)
+- `dots_push`, `dots_pull`, `dots_install`, `dots_clean`, and `dots_sync` now return a non-zero exit code on failure. `dots_sync` still installs and sources dotfiles when a git step fails (eg: offline), unless a rebase or merge conflict is unresolved
 - Paths written to your shell config by `dots_install`, `dots_clean`, and the installer are now quoted, so Dots loads when `$HOME` contains a space or quote
 
 ## v2.0.0 (2025-08-01)

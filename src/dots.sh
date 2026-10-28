@@ -136,26 +136,34 @@ _dots_reset_sync_log() {
     mkdir -p "$DOTS_HOME_DIR" && : >"$DOTS_HOME_DIR/sync.log"
 }
 
-# Ensure there are no uncommitted changes (including submodule updates) that a pull would silently revert
+# Ensure there are no uncommitted changes (including submodule pointer updates) that a pull would silently revert
+# Edits inside a submodule's own working tree are ignored as a pull doesn't touch them
 _dots_check_clean_tree() {
-    git -C "$DOTFILES_DIR" diff --quiet --ignore-submodules=untracked HEAD -- 2>>"$DOTS_HOME_DIR/sync.log" && return 0
+    git -C "$DOTFILES_DIR" diff --quiet --ignore-submodules=dirty HEAD -- 2>>"$DOTS_HOME_DIR/sync.log" && return 0
     echo "Uncommitted changes in $DOTFILES_DIR (including submodule updates), commit them with dots_push or dots_sync before pulling" | tee -a "$DOTS_HOME_DIR/sync.log" >&2
     return 1
 }
 
-# Stage and commit local changes, if any
+# Succeeds if a rebase is in progress or there are unmerged files in the dotfiles repo
 # This file is sourced, so variables are prefixed and unset to avoid leaking into the user's shell (no `local` in POSIX)
+_dots_has_conflict() {
+    for _dots_rebase_dir in rebase-merge rebase-apply; do
+        if [ -d "$(git -C "$DOTFILES_DIR" rev-parse --path-format=absolute --git-path "$_dots_rebase_dir" 2>>"$DOTS_HOME_DIR/sync.log")" ]; then
+            unset _dots_rebase_dir
+            return 0
+        fi
+    done
+    unset _dots_rebase_dir
+    [ -n "$(git -C "$DOTFILES_DIR" ls-files -u 2>>"$DOTS_HOME_DIR/sync.log")" ]
+}
+
+# Stage and commit local changes, if any
 _dots_commit() {
-    if ! _dots_git_dir="$(git -C "$DOTFILES_DIR" rev-parse --absolute-git-dir 2>>"$DOTS_HOME_DIR/sync.log")"; then
-        unset _dots_git_dir
-        return 1
-    fi
-    if [ -d "$_dots_git_dir/rebase-merge" ] || [ -d "$_dots_git_dir/rebase-apply" ] || [ -n "$(git -C "$DOTFILES_DIR" ls-files -u)" ]; then
-        unset _dots_git_dir
+    _dots_git rev-parse --git-dir || return 1
+    if _dots_has_conflict; then
         echo "A rebase or merge conflict is unresolved in $DOTFILES_DIR, resolve it before syncing" | tee -a "$DOTS_HOME_DIR/sync.log" >&2
         return 1
     fi
-    unset _dots_git_dir
     _dots_git add -A || return 1
     _dots_git diff --cached --quiet && return 0
     _dots_git commit -m "Updated dotfiles"
@@ -231,7 +239,7 @@ dots_diff() {
 
 # Syncs dotfiles from your local machine to and from your dotfiles repo
 # Commits local changes first, then rebases onto the remote, then pushes, stopping at the first failed git step
-# Dotfiles are installed and sourced even if a git step fails (eg: offline), but the failure is still reported
+# Dotfiles are still installed and sourced if a git step fails (eg: offline) unless a rebase or merge conflict is unresolved
 dots_sync() {
     _dots_check_dotfiles_dir || return 1
     _dots_reset_sync_log
@@ -244,6 +252,8 @@ dots_sync() {
         dots_install && dots_source
     else
         echo "Error syncing Dotfiles, see $DOTS_HOME_DIR/sync.log"
+        # Never install from a half-rebased or conflicted tree
+        _dots_has_conflict && return 1
         dots_install && dots_source
         return 1
     fi
