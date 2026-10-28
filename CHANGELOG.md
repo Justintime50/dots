@@ -7,9 +7,11 @@
 - Git output for push, pull, and sync is now logged to `~/.dots/sync.log` instead of being discarded
 - Committing is skipped when there are no changes instead of erroring
 - `dots_push`, `dots_pull`, `dots_install`, `dots_clean`, and `dots_sync` now return a non-zero exit code on failure. `dots_sync` still installs and sources dotfiles when a git step fails (eg: offline), unless a rebase or merge conflict is unresolved
-- `ksh` (`/bin/ksh`) is now treated as a supported shell. Previously a bad comparison rejected it while letting unsupported shells through
+- Supported shells (`zsh`, `bash`, `sh`, `dash`, and `ksh`) are now matched by name so they work from any install location (eg: `/opt/homebrew/bin/zsh`). Previously `ksh` was rejected by a bad comparison while unsupported shells were let through
 - Paths written to your shell config by `dots_install`, `dots_clean`, and the installer are now quoted, so Dots loads when `$HOME` contains a space, quote, or backslash
-- The installer now overwrites your shell config instead of appending to it, as documented
+- The installer, `dots_install`, and `dots_clean` now write your shell config the same way, and safely: the new file is written beside the old one, checked, and moved into place, so a failure leaves your existing shell config untouched
+- A shell config that Dots didn't write (eg: on a machine with existing dotfiles) is backed up to `<file>.pre-dots` before it's replaced. That first backup is never overwritten by later runs, and a symlinked shell config is replaced rather than written through
+- The installer now stops before touching your shell config if your shell is unsupported or your dotfiles or `dots-config.sh` are missing, and `dots_install` and `dots_clean` stop if the shell config can't be written
 - Detecting an unresolved rebase no longer requires git 2.31+
 
 ## v2.0.0 (2025-08-01)

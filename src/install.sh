@@ -10,16 +10,16 @@ DOTS_DIR="$DOTFILES_DIR/dots/src"
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
 
 main() {
-    # Sources various variables needed for this script
-    . "$DOTS_DIR/shared.sh"
-    _dots_set_shell_config_file # Sourced from `shared.sh`
+    # Load Dots, which writes your shell config the same way `dots_install` does
+    . "$DOTS_DIR/dots.sh"
 
-    # Add Dots as a sourced script to your current shell config (running this install script will overwrite your shell config file)
-    printf '. %s\n' "$(_dots_quote "$DOTS_DIR/dots.sh")" >"$SHELL_CONFIG_FILE"
-    printf '. %s\n' "$(_dots_quote "$DOTS_CONFIG_FILE")" >>"$SHELL_CONFIG_FILE"
+    # Replace your shell config with one that loads Dots and your config (an existing one is backed up to `<file>.pre-dots`)
+    # Nothing is changed if the shell is unsupported, your dotfiles or config are missing, or the new file can't be written
+    _dots_check_dotfiles_dir || exit 1
+    _dots_reset_terminal_config || exit 1
 
-    # Source the SHELL_CONFIG_FILE so we can call `dots_sync`
-    . "$SHELL_CONFIG_FILE"
+    # Load your config so we can call `dots_sync`
+    . "$DOTS_CONFIG_FILE"
     dots_sync
 }
 

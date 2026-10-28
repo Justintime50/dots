@@ -12,6 +12,7 @@ HOSTNAME="$(hostname)" # Required for macOS as it's not set automatically like i
 DOTS_HOME_DIR="$HOME/.dots"
 DOTS_DIR="$DOTFILES_DIR/dots/src"
 DOTS_SCRIPT_FILE="$DOTS_DIR/dots.sh"
+DOTS_SHELL_CONFIG_HEADER="# Dots Config (automatically set, do not edit)" # Always the first line of a shell config Dots writes
 
 ### CHECKERS ###
 
@@ -23,12 +24,15 @@ _dots_check_dotfiles_dir() {
     fi
 }
 
-# Ensures the shell being used is supported
+# Ensures the shell being used is supported, matched by name so any install location works (eg: `/opt/homebrew/bin/zsh`)
 _dots_check_shell() {
-    if [ "$SHELL" != "/bin/zsh" ] && [ "$SHELL" != "/bin/bash" ] && [ "$SHELL" != "/bin/sh" ] && [ "$SHELL" != "/bin/dash" ] && [ "$SHELL" != "/bin/ksh" ]; then
+    case "${SHELL##*/}" in
+    zsh | bash | sh | dash | ksh) ;;
+    *)
         echo "Dots doesn't support $SHELL."
         return 1
-    fi
+        ;;
+    esac
 }
 
 # Ensures the Dots config file exists
@@ -85,22 +89,56 @@ _dots_init_message() {
     echo "#############################################"
 }
 
-# Resets the `~/.zshrc`, `~/.bash_profile`, or `~/.profile` files to only contain Dots and the config
-# Be aware this will overwrite whatever the user has setup at those locations and create it if it doesn't exist
-_dots_reset_terminal_config() {
-    if _dots_init; then
-        {
-            echo "# Dots Config (automatically set, do not edit)"
-            printf '. %s\n' "$(_dots_quote "$DOTS_SCRIPT_FILE")"
-            printf '. %s\n' "$(_dots_quote "$DOTS_CONFIG_FILE")"
-            echo "_dots_init"
-            if [ -z "$DOTS_DISABLE_INIT_MESSAGE" ]; then
-                echo "_dots_init_message"
-            fi
-            echo ""
-            echo "# Dotfiles Config (custom, edit below this line)"
-        } >"$SHELL_CONFIG_FILE" # If this file doesn't yet exist, it will be created here
+# Prints the contents of the shell config that Dots manages
+_dots_print_terminal_config() {
+    echo "$DOTS_SHELL_CONFIG_HEADER"
+    printf '. %s\n' "$(_dots_quote "$DOTS_SCRIPT_FILE")"
+    printf '. %s\n' "$(_dots_quote "$DOTS_CONFIG_FILE")"
+    echo "_dots_init"
+    if [ -z "$DOTS_DISABLE_INIT_MESSAGE" ]; then
+        echo "_dots_init_message"
     fi
+    echo ""
+    echo "# Dotfiles Config (custom, edit below this line)"
+}
+
+# Backs up a shell config that Dots didn't write (eg: on a machine with existing dotfiles) to `<file>.pre-dots`
+# The first backup is never overwritten, a later config Dots didn't write gets a timestamped backup instead
+# This file is sourced, so variables are prefixed and unset to avoid leaking into the user's shell (no `local` in POSIX)
+_dots_backup_terminal_config() {
+    [ -f "$SHELL_CONFIG_FILE" ] || return 0
+    [ "$(head -n 1 "$SHELL_CONFIG_FILE")" = "$DOTS_SHELL_CONFIG_HEADER" ] && return 0
+    _dots_rc_backup="$SHELL_CONFIG_FILE.pre-dots"
+    [ -e "$_dots_rc_backup" ] && _dots_rc_backup="$_dots_rc_backup.$(date +%Y%m%d%H%M%S)"
+    if [ ! -e "$_dots_rc_backup" ] && cp -p "$SHELL_CONFIG_FILE" "$_dots_rc_backup"; then
+        printf 'Backed up %s to %s\n' "$SHELL_CONFIG_FILE" "$_dots_rc_backup"
+        unset _dots_rc_backup
+        return 0
+    fi
+    unset _dots_rc_backup
+    return 1
+}
+
+# Resets the `~/.zshrc`, `~/.bash_profile`, or `~/.profile` file to only contain Dots and the config, creating it if it doesn't exist
+# The new file is written beside the old one, checked, then moved into place, so a failure leaves the old file untouched
+# A symlinked shell config is replaced with a regular file rather than written through, so the file it points to is left alone
+_dots_reset_terminal_config() {
+    _dots_init || return 1
+    _dots_check_config_file || return 1
+    _dots_rc_tmp="$SHELL_CONFIG_FILE.dots-tmp.$$"
+    # Copying the existing file first keeps its permissions, the generated content is POSIX so `sh -n` checks it for every supported shell
+    if { [ ! -f "$SHELL_CONFIG_FILE" ] || cp -p "$SHELL_CONFIG_FILE" "$_dots_rc_tmp"; } &&
+        _dots_print_terminal_config >"$_dots_rc_tmp" &&
+        sh -n "$_dots_rc_tmp" &&
+        _dots_backup_terminal_config &&
+        mv -f "$_dots_rc_tmp" "$SHELL_CONFIG_FILE"; then
+        unset _dots_rc_tmp
+        return 0
+    fi
+    rm -f "$_dots_rc_tmp"
+    printf "Dots couldn't update %s, it was left unchanged\n" "$SHELL_CONFIG_FILE" >&2
+    unset _dots_rc_tmp
+    return 1
 }
 
 # Save the installation steps to a log
@@ -201,7 +239,7 @@ dots_pull() {
 # Installs dotfiles based on the Dots config file
 dots_install() {
     _dots_check_config_file || return 1
-    _dots_reset_terminal_config
+    _dots_reset_terminal_config || return 1
     echo "Installing dotfiles..."
     if _dots_log_install_step; then
         echo "Dotfiles installed!"
@@ -214,7 +252,7 @@ dots_install() {
 # Cleans dotfiles based on the Dots config file
 dots_clean() {
     _dots_check_config_file || return 1
-    _dots_reset_terminal_config
+    _dots_reset_terminal_config || return 1
     echo "Cleaning dotfiles..."
     if _dots_log_clean_step; then
         echo "Dotfiles cleaned!"
