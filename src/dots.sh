@@ -25,7 +25,7 @@ _dots_check_dotfiles_dir() {
 
 # Ensures the shell being used is supported
 _dots_check_shell() {
-    if [ "$SHELL" != "/bin/zsh" ] && [ "$SHELL" != "/bin/bash" ] && [ "$SHELL" != "/bin/sh" ] && [ "$SHELL" != "/bin/dash" ] && [ "$SHELL" = "/bin/ksh" ]; then
+    if [ "$SHELL" != "/bin/zsh" ] && [ "$SHELL" != "/bin/bash" ] && [ "$SHELL" != "/bin/sh" ] && [ "$SHELL" != "/bin/dash" ] && [ "$SHELL" != "/bin/ksh" ]; then
         echo "Dots doesn't support $SHELL."
         return 1
     fi
