@@ -7,6 +7,7 @@
 - Git output for push, pull, and sync is now logged to `~/.dots/sync.log` instead of being discarded
 - Committing is skipped when there are no changes instead of erroring
 - `dots_push`, `dots_pull`, `dots_install`, `dots_clean`, and `dots_sync` now return a non-zero exit code on failure. `dots_sync` still installs and sources dotfiles when a git step fails (eg: offline)
+- Paths written to your shell config by `dots_install`, `dots_clean`, and the installer are now quoted, so Dots loads when `$HOME` contains a space or quote
 
 ## v2.0.0 (2025-08-01)
 

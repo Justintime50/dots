@@ -91,8 +91,8 @@ _dots_reset_terminal_config() {
     if _dots_init; then
         {
             echo "# Dots Config (automatically set, do not edit)"
-            echo ". $DOTS_SCRIPT_FILE"
-            echo ". $DOTS_CONFIG_FILE"
+            echo ". $(_dots_quote "$DOTS_SCRIPT_FILE")"
+            echo ". $(_dots_quote "$DOTS_CONFIG_FILE")"
             echo "_dots_init"
             if [ -z "$DOTS_DISABLE_INIT_MESSAGE" ]; then
                 echo "_dots_init_message"
