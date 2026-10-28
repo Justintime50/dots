@@ -131,13 +131,31 @@ _dots_git() {
     git -C "$DOTFILES_DIR" "$@" >>"$DOTS_HOME_DIR/sync.log" 2>&1
 }
 
+# Start a fresh git log for this run
+_dots_reset_sync_log() {
+    mkdir -p "$DOTS_HOME_DIR" && : >"$DOTS_HOME_DIR/sync.log"
+}
+
+# Ensure there are no uncommitted changes (including submodule updates) that a pull would silently revert
+_dots_check_clean_tree() {
+    git -C "$DOTFILES_DIR" diff --quiet --ignore-submodules=untracked HEAD -- 2>>"$DOTS_HOME_DIR/sync.log" && return 0
+    echo "Uncommitted changes in $DOTFILES_DIR (including submodule updates), commit them with dots_push or dots_sync before pulling" | tee -a "$DOTS_HOME_DIR/sync.log" >&2
+    return 1
+}
+
 # Stage and commit local changes, if any
+# This file is sourced, so variables are prefixed and unset to avoid leaking into the user's shell (no `local` in POSIX)
 _dots_commit() {
-    git_dir="$(git -C "$DOTFILES_DIR" rev-parse --absolute-git-dir)" || return 1
-    if [ -d "$git_dir/rebase-merge" ] || [ -d "$git_dir/rebase-apply" ] || [ -n "$(git -C "$DOTFILES_DIR" ls-files -u)" ]; then
-        echo "A rebase or merge conflict is unresolved in $DOTFILES_DIR, resolve it before syncing" >>"$DOTS_HOME_DIR/sync.log"
+    if ! _dots_git_dir="$(git -C "$DOTFILES_DIR" rev-parse --absolute-git-dir 2>>"$DOTS_HOME_DIR/sync.log")"; then
+        unset _dots_git_dir
         return 1
     fi
+    if [ -d "$_dots_git_dir/rebase-merge" ] || [ -d "$_dots_git_dir/rebase-apply" ] || [ -n "$(git -C "$DOTFILES_DIR" ls-files -u)" ]; then
+        unset _dots_git_dir
+        echo "A rebase or merge conflict is unresolved in $DOTFILES_DIR, resolve it before syncing" | tee -a "$DOTS_HOME_DIR/sync.log" >&2
+        return 1
+    fi
+    unset _dots_git_dir
     _dots_git add -A || return 1
     _dots_git diff --cached --quiet && return 0
     _dots_git commit -m "Updated dotfiles"
@@ -148,11 +166,12 @@ _dots_commit() {
 # Push Dotfiles up to the Git server
 dots_push() {
     _dots_check_dotfiles_dir || return 1
+    _dots_reset_sync_log
     echo "Pushing dotfiles..."
     if _dots_commit && _dots_git push; then
         echo "Dotfiles pushed!"
     else
-        echo "Error pushing Dotfiles"
+        echo "Error pushing Dotfiles, see $DOTS_HOME_DIR/sync.log"
         return 1
     fi
 }
@@ -160,12 +179,14 @@ dots_push() {
 # Pull updates from the Dotfiles project
 dots_pull() {
     _dots_check_dotfiles_dir || return 1
+    _dots_reset_sync_log
     echo "Pulling dotfiles..."
-    if _dots_git pull --rebase --autostash --recurse-submodules &&
+    if _dots_check_clean_tree &&
+        _dots_git pull --rebase &&
         _dots_git submodule update --init --recursive; then
         echo "Dotfiles pulled!"
     else
-        echo "Error pulling Dotfiles"
+        echo "Error pulling Dotfiles, see $DOTS_HOME_DIR/sync.log"
         return 1
     fi
 }
@@ -209,22 +230,23 @@ dots_diff() {
 }
 
 # Syncs dotfiles from your local machine to and from your dotfiles repo
-# Commits local changes first, then rebases onto the remote, then pushes, stopping at the first failure
+# Commits local changes first, then rebases onto the remote, then pushes, stopping at the first failed git step
+# Dotfiles are installed and sourced even if a git step fails (eg: offline), but the failure is still reported
 dots_sync() {
     _dots_check_dotfiles_dir || return 1
-    mkdir -p "$DOTS_HOME_DIR" && : >"$DOTS_HOME_DIR/sync.log"
+    _dots_reset_sync_log
     echo "Syncing dotfiles..."
-    if ! {
-        _dots_commit &&
-            _dots_git pull --rebase --recurse-submodules &&
-            _dots_git submodule update --init --recursive &&
-            _dots_git push
-    }; then
+    if _dots_commit &&
+        _dots_git pull --rebase &&
+        _dots_git submodule update --init --recursive &&
+        _dots_git push; then
+        echo "Dotfiles synced!"
+        dots_install && dots_source
+    else
         echo "Error syncing Dotfiles, see $DOTS_HOME_DIR/sync.log"
+        dots_install && dots_source
         return 1
     fi
-    echo "Dotfiles synced!"
-    dots_install && dots_source
 }
 
 # Sources the shell

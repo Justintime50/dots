@@ -77,7 +77,7 @@ dots_install
 # Source all new Dotfiles
 dots_source
 
-# Pull/push/install/source Dotfile changes
+# Commit/pull/push/install/source Dotfile changes (git output is logged to `~/.dots/sync.log`)
 dots_sync
 
 # Clean Dotfiles (uses `dots_config_down` function in dots-config.sh)
