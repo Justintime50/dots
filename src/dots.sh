@@ -7,11 +7,12 @@ DOTFILES_DIR="$HOME/.dotfiles" # Cannot be `~/.dots` as we will use this for int
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
 
 # Dots required variables (DO NOT EDIT)
-DOTS_VERSION="v2.0.0"
+DOTS_VERSION="v2.1.0"
 HOSTNAME="$(hostname)" # Required for macOS as it's not set automatically like it is on Linux
 DOTS_HOME_DIR="$HOME/.dots"
 DOTS_DIR="$DOTFILES_DIR/dots/src"
 DOTS_SCRIPT_FILE="$DOTS_DIR/dots.sh"
+DOTS_SHELL_CONFIG_HEADER="# Dots Config (automatically set, do not edit)" # Always the first line of a shell config Dots writes
 
 ### CHECKERS ###
 
@@ -23,12 +24,15 @@ _dots_check_dotfiles_dir() {
     fi
 }
 
-# Ensures the shell being used is supported
+# Ensures the shell being used is supported, matched by name so any install location works (eg: `/opt/homebrew/bin/zsh`)
 _dots_check_shell() {
-    if [ "$SHELL" != "/bin/zsh" ] && [ "$SHELL" != "/bin/bash" ] && [ "$SHELL" != "/bin/sh" ] && [ "$SHELL" != "/bin/dash" ] && [ "$SHELL" = "/bin/ksh" ]; then
+    case "${SHELL##*/}" in
+    zsh | bash | sh | dash | ksh) ;;
+    *)
         echo "Dots doesn't support $SHELL."
         return 1
-    fi
+        ;;
+    esac
 }
 
 # Ensures the Dots config file exists
@@ -85,22 +89,65 @@ _dots_init_message() {
     echo "#############################################"
 }
 
-# Resets the `~/.zshrc`, `~/.bash_profile`, or `~/.profile` files to only contain Dots and the config
-# Be aware this will overwrite whatever the user has setup at those locations and create it if it doesn't exist
-_dots_reset_terminal_config() {
-    if _dots_init; then
-        {
-            echo "# Dots Config (automatically set, do not edit)"
-            echo ". $DOTS_SCRIPT_FILE"
-            echo ". $DOTS_CONFIG_FILE"
-            echo "_dots_init"
-            if [ -z "$DOTS_DISABLE_INIT_MESSAGE" ]; then
-                echo "_dots_init_message"
-            fi
-            echo ""
-            echo "# Dotfiles Config (custom, edit below this line)"
-        } >"$SHELL_CONFIG_FILE" # If this file doesn't yet exist, it will be created here
+# Prints the contents of the shell config that Dots manages
+_dots_print_terminal_config() {
+    echo "$DOTS_SHELL_CONFIG_HEADER"
+    printf '. %s\n' "$(_dots_quote "$DOTS_SCRIPT_FILE")"
+    printf '. %s\n' "$(_dots_quote "$DOTS_CONFIG_FILE")"
+    echo "_dots_init"
+    if [ -z "$DOTS_DISABLE_INIT_MESSAGE" ]; then
+        echo "_dots_init_message"
     fi
+    echo ""
+    echo "# Dotfiles Config (custom, edit below this line)"
+}
+
+# Backs up an existing shell config (eg: on a machine with existing dotfiles) to `<file>.pre-dots`
+# Nothing is backed up when the config is missing, empty, written by Dots, or a symlink (the file it points to is left untouched)
+# The first backup is never overwritten, a later config Dots didn't write gets a uniquely named timestamped backup instead
+# This file is sourced, so variables are prefixed and unset to avoid leaking into the user's shell (no `local` in POSIX)
+_dots_backup_terminal_config() {
+    [ -f "$SHELL_CONFIG_FILE" ] && [ ! -L "$SHELL_CONFIG_FILE" ] && [ -s "$SHELL_CONFIG_FILE" ] || return 0
+    [ "$(head -n 1 "$SHELL_CONFIG_FILE")" = "$DOTS_SHELL_CONFIG_HEADER" ] && return 0
+    _dots_rc_backup="$SHELL_CONFIG_FILE.pre-dots"
+    if [ -e "$_dots_rc_backup" ]; then
+        _dots_rc_backup_base="$_dots_rc_backup.$(date +%Y%m%d%H%M%S).$$"
+        _dots_rc_backup="$_dots_rc_backup_base"
+        _dots_rc_backup_count=1
+        while [ -e "$_dots_rc_backup" ]; do
+            _dots_rc_backup="$_dots_rc_backup_base.$_dots_rc_backup_count"
+            _dots_rc_backup_count=$((_dots_rc_backup_count + 1))
+        done
+        unset _dots_rc_backup_base _dots_rc_backup_count
+    fi
+    if cp -p "$SHELL_CONFIG_FILE" "$_dots_rc_backup"; then
+        printf 'Backed up %s to %s\n' "$SHELL_CONFIG_FILE" "$_dots_rc_backup"
+        unset _dots_rc_backup
+        return 0
+    fi
+    unset _dots_rc_backup
+    return 1
+}
+
+# Resets the `~/.zshrc`, `~/.bash_profile`, or `~/.profile` file to only contain Dots and the config, creating it if it doesn't exist
+# The new file is written beside the old one and then moved into place, so a failure leaves the old file untouched
+# A symlinked shell config is replaced with a regular file rather than written through, so the file it points to is left alone
+_dots_reset_terminal_config() {
+    _dots_init || return 1
+    _dots_check_config_file || return 1
+    _dots_rc_tmp="$SHELL_CONFIG_FILE.dots-tmp.$$"
+    # Copying the existing file first keeps its permissions
+    if { [ ! -f "$SHELL_CONFIG_FILE" ] || cp -p "$SHELL_CONFIG_FILE" "$_dots_rc_tmp"; } &&
+        _dots_print_terminal_config >"$_dots_rc_tmp" &&
+        _dots_backup_terminal_config &&
+        mv -f "$_dots_rc_tmp" "$SHELL_CONFIG_FILE"; then
+        unset _dots_rc_tmp
+        return 0
+    fi
+    rm -f "$_dots_rc_tmp"
+    printf "Dots couldn't update %s, it was left unchanged\n" "$SHELL_CONFIG_FILE" >&2
+    unset _dots_rc_tmp
+    return 1
 }
 
 # Save the installation steps to a log
@@ -123,41 +170,104 @@ _dots_log_clean_step() {
     } 2>"$DOTS_HOME_DIR/clean.log"
 }
 
+### GIT ###
+
+# Run a git command in the dotfiles repo quietly, logging output for debugging
+_dots_git() {
+    mkdir -p "$DOTS_HOME_DIR"
+    git -C "$DOTFILES_DIR" "$@" >>"$DOTS_HOME_DIR/sync.log" 2>&1
+}
+
+# Start a fresh git log for this run
+_dots_reset_sync_log() {
+    mkdir -p "$DOTS_HOME_DIR" && : >"$DOTS_HOME_DIR/sync.log"
+}
+
+# Ensure there are no uncommitted changes (including submodule pointer updates) that a pull would silently revert
+# Edits inside a submodule's own working tree are ignored as a pull doesn't touch them
+_dots_check_clean_tree() {
+    git -C "$DOTFILES_DIR" diff --quiet --ignore-submodules=dirty HEAD -- 2>>"$DOTS_HOME_DIR/sync.log" && return 0
+    echo "Uncommitted changes in $DOTFILES_DIR (including submodule updates), commit them with dots_push or dots_sync before pulling" | tee -a "$DOTS_HOME_DIR/sync.log" >&2
+    return 1
+}
+
+# Succeeds if a rebase is in progress or there are unmerged files in the dotfiles repo
+# This file is sourced, so variables are prefixed and unset to avoid leaking into the user's shell (no `local` in POSIX)
+_dots_has_conflict() {
+    _dots_git_dir="$(git -C "$DOTFILES_DIR" rev-parse --absolute-git-dir 2>>"$DOTS_HOME_DIR/sync.log")"
+    if [ -n "$_dots_git_dir" ] && { [ -d "$_dots_git_dir/rebase-merge" ] || [ -d "$_dots_git_dir/rebase-apply" ]; }; then
+        unset _dots_git_dir
+        return 0
+    fi
+    unset _dots_git_dir
+    [ -n "$(git -C "$DOTFILES_DIR" ls-files -u 2>>"$DOTS_HOME_DIR/sync.log")" ]
+}
+
+# Stage and commit local changes, if any
+_dots_commit() {
+    _dots_git rev-parse --git-dir || return 1
+    if _dots_has_conflict; then
+        echo "A rebase or merge conflict is unresolved in $DOTFILES_DIR, resolve it before syncing" | tee -a "$DOTS_HOME_DIR/sync.log" >&2
+        return 1
+    fi
+    _dots_git add -A || return 1
+    _dots_git diff --cached --quiet && return 0
+    _dots_git commit -m "Updated dotfiles"
+}
+
 ### INTERFACES ###
 
 # Push Dotfiles up to the Git server
 dots_push() {
-    if _dots_check_dotfiles_dir; then
-        echo "Pushing dotfiles..."
-        git -C "$DOTFILES_DIR" add .
-        git -C "$DOTFILES_DIR" commit -m "Updated dotfiles"
-        git -C "$DOTFILES_DIR" push >/dev/null 2>&1 && echo "Dotfiles pushed!" || echo "Error pushing Dotfiles"
+    _dots_check_dotfiles_dir || return 1
+    _dots_reset_sync_log
+    echo "Pushing dotfiles..."
+    if _dots_commit && _dots_git push; then
+        echo "Dotfiles pushed!"
+    else
+        echo "Error pushing Dotfiles, see $DOTS_HOME_DIR/sync.log"
+        return 1
     fi
 }
 
 # Pull updates from the Dotfiles project
 dots_pull() {
-    if _dots_check_dotfiles_dir; then
-        echo "Pulling dotfiles..."
-        git -C "$DOTFILES_DIR" pull --rebase >/dev/null 2>&1 && echo "Dotfiles pulled!" || echo "Error pulling Dotfiles"
+    _dots_check_dotfiles_dir || return 1
+    _dots_reset_sync_log
+    echo "Pulling dotfiles..."
+    if _dots_check_clean_tree &&
+        _dots_git pull --rebase &&
+        _dots_git submodule update --init --recursive; then
+        echo "Dotfiles pulled!"
+    else
+        echo "Error pulling Dotfiles, see $DOTS_HOME_DIR/sync.log"
+        return 1
     fi
 }
 
 # Installs dotfiles based on the Dots config file
 dots_install() {
-    if _dots_check_config_file; then
-        _dots_reset_terminal_config
-        echo "Installing dotfiles..."
-        _dots_log_install_step && echo "Dotfiles installed!" || echo "Error installing Dotfiles"
+    _dots_check_config_file || return 1
+    _dots_reset_terminal_config || return 1
+    echo "Installing dotfiles..."
+    if _dots_log_install_step; then
+        echo "Dotfiles installed!"
+    else
+        echo "Error installing Dotfiles"
+        return 1
     fi
 }
 
 # Cleans dotfiles based on the Dots config file
 dots_clean() {
-    if _dots_check_config_file; then
-        _dots_reset_terminal_config
-        echo "Cleaning dotfiles..."
-        _dots_log_clean_step && echo "Dotfiles cleaned!" || echo "Error cleaning Dotfiles"
+    _dots_check_config_file || return 1
+    _dots_reset_terminal_config || return 1
+    echo "Cleaning dotfiles..."
+    if _dots_log_clean_step; then
+        echo "Dotfiles cleaned!"
+    else
+        echo "Error cleaning Dotfiles"
+        return 1
     fi
 }
 
@@ -174,11 +284,25 @@ dots_diff() {
 }
 
 # Syncs dotfiles from your local machine to and from your dotfiles repo
+# Commits local changes first, then rebases onto the remote, then pushes, stopping at the first failed git step
+# Dotfiles are still installed and sourced if a git step fails (eg: offline) unless a rebase or merge conflict is unresolved
 dots_sync() {
-    dots_pull
-    dots_push
-    dots_install
-    dots_source
+    _dots_check_dotfiles_dir || return 1
+    _dots_reset_sync_log
+    echo "Syncing dotfiles..."
+    if _dots_commit &&
+        _dots_git pull --rebase &&
+        _dots_git submodule update --init --recursive &&
+        _dots_git push; then
+        echo "Dotfiles synced!"
+        dots_install && dots_source
+    else
+        echo "Error syncing Dotfiles, see $DOTS_HOME_DIR/sync.log"
+        # Never install from a half-rebased or conflicted tree
+        _dots_has_conflict && return 1
+        dots_install && dots_source
+        return 1
+    fi
 }
 
 # Sources the shell
