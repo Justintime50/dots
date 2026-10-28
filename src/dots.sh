@@ -102,15 +102,36 @@ _dots_print_terminal_config() {
     echo "# Dotfiles Config (custom, edit below this line)"
 }
 
-# Backs up a shell config that Dots didn't write (eg: on a machine with existing dotfiles) to `<file>.pre-dots`
-# The first backup is never overwritten, a later config Dots didn't write gets a timestamped backup instead
+# Succeeds if the shell config only loads Dots (eg: the line added by the install steps on a fresh machine)
+# Every line must be blank, a comment, or `. <path>/dots.sh` / `source <path>/dots.sh`, so an empty file counts too
+# The path is one double-quoted, single-quoted, or unquoted word, so a line that also runs something else isn't matched
+_dots_shell_config_is_dots_only() {
+    [ -r "$SHELL_CONFIG_FILE" ] &&
+        ! grep -Evq -e '^[[:space:]]*(#.*)?$' \
+            -e '^[[:space:]]*(\.|source)[[:space:]]+("([^"`(]*/)?dots\.sh"|'\''([^'\'']*/)?dots\.sh'\''|([^"'\''[:space:];&|<>()`\]*/)?dots\.sh)[[:space:]]*$' \
+            "$SHELL_CONFIG_FILE"
+}
+
+# Backs up a shell config with the user's own setup (eg: on a machine with existing dotfiles) to `<file>.pre-dots`
+# Nothing is backed up when there's no config, it's a symlink (the file it points to is left untouched), Dots wrote it, or it only loads Dots
+# The first backup is never overwritten, a later config with the user's own setup gets a uniquely named timestamped backup instead
 # This file is sourced, so variables are prefixed and unset to avoid leaking into the user's shell (no `local` in POSIX)
 _dots_backup_terminal_config() {
-    [ -f "$SHELL_CONFIG_FILE" ] || return 0
+    [ -f "$SHELL_CONFIG_FILE" ] && [ ! -L "$SHELL_CONFIG_FILE" ] || return 0
     [ "$(head -n 1 "$SHELL_CONFIG_FILE")" = "$DOTS_SHELL_CONFIG_HEADER" ] && return 0
+    _dots_shell_config_is_dots_only && return 0
     _dots_rc_backup="$SHELL_CONFIG_FILE.pre-dots"
-    [ -e "$_dots_rc_backup" ] && _dots_rc_backup="$_dots_rc_backup.$(date +%Y%m%d%H%M%S)"
-    if [ ! -e "$_dots_rc_backup" ] && cp -p "$SHELL_CONFIG_FILE" "$_dots_rc_backup"; then
+    if [ -e "$_dots_rc_backup" ]; then
+        _dots_rc_backup_base="$_dots_rc_backup.$(date +%Y%m%d%H%M%S).$$"
+        _dots_rc_backup="$_dots_rc_backup_base"
+        _dots_rc_backup_count=1
+        while [ -e "$_dots_rc_backup" ]; do
+            _dots_rc_backup="$_dots_rc_backup_base.$_dots_rc_backup_count"
+            _dots_rc_backup_count=$((_dots_rc_backup_count + 1))
+        done
+        unset _dots_rc_backup_base _dots_rc_backup_count
+    fi
+    if cp -p "$SHELL_CONFIG_FILE" "$_dots_rc_backup"; then
         printf 'Backed up %s to %s\n' "$SHELL_CONFIG_FILE" "$_dots_rc_backup"
         unset _dots_rc_backup
         return 0
@@ -120,16 +141,15 @@ _dots_backup_terminal_config() {
 }
 
 # Resets the `~/.zshrc`, `~/.bash_profile`, or `~/.profile` file to only contain Dots and the config, creating it if it doesn't exist
-# The new file is written beside the old one, checked, then moved into place, so a failure leaves the old file untouched
+# The new file is written beside the old one and then moved into place, so a failure leaves the old file untouched
 # A symlinked shell config is replaced with a regular file rather than written through, so the file it points to is left alone
 _dots_reset_terminal_config() {
     _dots_init || return 1
     _dots_check_config_file || return 1
     _dots_rc_tmp="$SHELL_CONFIG_FILE.dots-tmp.$$"
-    # Copying the existing file first keeps its permissions, the generated content is POSIX so `sh -n` checks it for every supported shell
+    # Copying the existing file first keeps its permissions
     if { [ ! -f "$SHELL_CONFIG_FILE" ] || cp -p "$SHELL_CONFIG_FILE" "$_dots_rc_tmp"; } &&
         _dots_print_terminal_config >"$_dots_rc_tmp" &&
-        sh -n "$_dots_rc_tmp" &&
         _dots_backup_terminal_config &&
         mv -f "$_dots_rc_tmp" "$SHELL_CONFIG_FILE"; then
         unset _dots_rc_tmp
