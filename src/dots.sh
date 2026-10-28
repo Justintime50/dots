@@ -102,24 +102,13 @@ _dots_print_terminal_config() {
     echo "# Dotfiles Config (custom, edit below this line)"
 }
 
-# Succeeds if the shell config only loads Dots (eg: the line added by the install steps on a fresh machine)
-# Every line must be blank, a comment, or `. <path>/dots.sh` / `source <path>/dots.sh`, so an empty file counts too
-# The path is one double-quoted, single-quoted, or unquoted word, so a line that also runs something else isn't matched
-_dots_shell_config_is_dots_only() {
-    [ -r "$SHELL_CONFIG_FILE" ] &&
-        ! grep -Evq -e '^[[:space:]]*(#.*)?$' \
-            -e '^[[:space:]]*(\.|source)[[:space:]]+("([^"`(]*/)?dots\.sh"|'\''([^'\'']*/)?dots\.sh'\''|([^"'\''[:space:];&|<>()`\]*/)?dots\.sh)[[:space:]]*$' \
-            "$SHELL_CONFIG_FILE"
-}
-
-# Backs up a shell config with the user's own setup (eg: on a machine with existing dotfiles) to `<file>.pre-dots`
-# Nothing is backed up when there's no config, it's a symlink (the file it points to is left untouched), Dots wrote it, or it only loads Dots
-# The first backup is never overwritten, a later config with the user's own setup gets a uniquely named timestamped backup instead
+# Backs up an existing shell config (eg: on a machine with existing dotfiles) to `<file>.pre-dots`
+# Nothing is backed up when the config is missing, empty, written by Dots, or a symlink (the file it points to is left untouched)
+# The first backup is never overwritten, a later config Dots didn't write gets a uniquely named timestamped backup instead
 # This file is sourced, so variables are prefixed and unset to avoid leaking into the user's shell (no `local` in POSIX)
 _dots_backup_terminal_config() {
-    [ -f "$SHELL_CONFIG_FILE" ] && [ ! -L "$SHELL_CONFIG_FILE" ] || return 0
+    [ -f "$SHELL_CONFIG_FILE" ] && [ ! -L "$SHELL_CONFIG_FILE" ] && [ -s "$SHELL_CONFIG_FILE" ] || return 0
     [ "$(head -n 1 "$SHELL_CONFIG_FILE")" = "$DOTS_SHELL_CONFIG_HEADER" ] && return 0
-    _dots_shell_config_is_dots_only && return 0
     _dots_rc_backup="$SHELL_CONFIG_FILE.pre-dots"
     if [ -e "$_dots_rc_backup" ]; then
         _dots_rc_backup_base="$_dots_rc_backup.$(date +%Y%m%d%H%M%S).$$"

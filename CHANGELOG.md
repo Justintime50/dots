@@ -10,7 +10,7 @@
 - Supported shells (`zsh`, `bash`, `sh`, `dash`, and `ksh`) are now matched by name so they work from any install location (eg: `/opt/homebrew/bin/zsh`). Previously `ksh` was rejected by a bad comparison while unsupported shells were let through
 - Paths written to your shell config by `dots_install`, `dots_clean`, and the installer are now quoted, so Dots loads when `$HOME` contains a space, quote, or backslash
 - The installer, `dots_install`, and `dots_clean` now write your shell config the same way, and safely: the new file is written beside the old one and moved into place, so a failure leaves your existing shell config untouched
-- A shell config with your own setup (eg: on a machine with existing dotfiles) is backed up to `<file>.pre-dots` before it's replaced, and that first backup is never overwritten by later runs. Nothing is backed up on a fresh machine, where the config is missing, empty, or only loads Dots, or when it was written by Dots. A symlinked shell config isn't backed up and is replaced rather than written through, so the file it points to is left untouched
+- An existing shell config (eg: on a machine with existing dotfiles) is backed up to `<file>.pre-dots` before it's replaced, and that first backup is never overwritten by later runs. Nothing is backed up when the config is missing, empty, written by Dots, or a symlink. A symlinked shell config is replaced rather than written through, so the file it points to is left untouched
 - The installer now stops before touching your shell config if your shell is unsupported or your dotfiles or `dots-config.sh` are missing, and `dots_install` and `dots_clean` stop if the shell config can't be written
 - Detecting an unresolved rebase no longer requires git 2.31+
 

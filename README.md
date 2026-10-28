@@ -39,7 +39,7 @@ Dotfiles status:
 
 ## Install
 
-Dots will override your current Dotfiles, namely `~/.zshrc` for `zsh`, `~/.bash_profile` for `bash` and `~/.profile` for `sh`, `dash`, and `ksh` shells. Dots will create a blank shell config file and source your remaining files into it. If one of these files already holds your own setup, it's backed up first to `<file>.pre-dots` (eg: `~/.zshrc.pre-dots`), and later runs never overwrite that backup. Nothing is backed up on a fresh machine (a missing or empty file, or one that only loads Dots) or when the file is a symlink, which is replaced and its target left untouched. See [Configuration](#configuration) below for more details.
+Dots will override your current Dotfiles, namely `~/.zshrc` for `zsh`, `~/.bash_profile` for `bash` and `~/.profile` for `sh`, `dash`, and `ksh` shells. Dots will create a blank shell config file and source your remaining files into it. If one of these files already exists, it's backed up first to `<file>.pre-dots` (eg: `~/.zshrc.pre-dots`), and later runs never overwrite that backup. Nothing is backed up when the file is missing, empty, written by Dots, or a symlink (which is replaced and its target left untouched). See [Configuration](#configuration) below for more details.
 
 To install Dots, simply drop it into your current Dotfiles project:
 
@@ -136,13 +136,13 @@ dots_config_up() {
     # multiple computers depending on their HOSTNAME
     if [[ "$HOSTNAME" == "mbp-justin" ]] ; then
         ln -sfn "$DOTFILES_DIR"/src/personal/home/.gitconfig "$HOME"/.gitconfig
-        printf '. "%s"\n' "$DOTFILES_DIR/src/personal/home/.zshrc" >> "$HOME"/.zshrc # The double quotes handle spaces in paths
+        echo ". $DOTFILES_DIR/src/personal/home/.zshrc" >> "$HOME"/.zshrc
         # Your list can be as long as you'd like
     fi
 
     if [[ "$HOSTNAME" == "mbp-justin-work" ]] ; then
         ln -sfn "$DOTFILES_DIR"/src/work/home/.gitconfig "$HOME"/.gitconfig
-        printf '. "%s"\n' "$DOTFILES_DIR/src/work/home/.zshrc" >> "$HOME"/.zshrc
+        echo ". $DOTFILES_DIR/src/work/home/.zshrc" >> "$HOME"/.zshrc
         # Your list can be as long as you'd like
     fi
 }
