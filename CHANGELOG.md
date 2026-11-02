@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v3.0.0 (2026-11-02)
+
+- **BREAKING:** Drops support for `dash` and `ksh` shells. Supported shells are now `zsh`, `bash`, and `sh`
+- **BREAKING:** Unsupported shells are now rejected. Previously a bad comparison rejected only `ksh` and let every other shell through
+- **BREAKING:** `dots_sync` now commits local changes first, then pulls with a rebase, then pushes, stopping at the first failed git step. Previously it pulled, then committed and pushed even if the pull failed. Dotfiles are still installed and sourced when a git step fails (eg: offline)
+- **BREAKING:** A pull that fails during a rebase (eg: a merge conflict) is now aborted, leaving your dotfiles as they were before the pull. Previously the rebase was left in progress for you to resolve
+- **BREAKING:** Git output for `dots_push`, `dots_pull`, and `dots_sync` (including commit output) is now logged to `~/.dots/sync.log` instead of printed or discarded
+- **BREAKING:** `dots_push`, `dots_pull`, and `dots_sync` now return a non-zero exit code on failure
+- **BREAKING:** Submodules that are already checked out are now updated to their recorded commits after each pull. Submodules that were never checked out are skipped, and a failed submodule update doesn't block `dots_sync` from pushing. Commit or stash any edits inside a submodule before syncing.
+- **BREAKING:** `dots_sync`, `dots_push`, and `dots_pull` now stop without changing anything when a rebase or merge is already in progress. Previously local changes were committed on top of it
+- **BREAKING:** `dots_pull` now refuses to pull when there are uncommitted changes, including an updated submodule (eg: after `dots_update`). Commit them with `dots_push` or `dots_sync` first
+- Committing is skipped when there are no changes instead of erroring
+- **BREAKING:** Supported shells are now matched by name so they work from any install location (eg: `/opt/homebrew/bin/zsh`). Previously only `/bin` paths got a shell config, so `dots_install` and `dots_sync` left `~/.zshrc` or `~/.bash_profile` alone for other shell paths. If your shell lives outside `/bin` (eg: `/opt/homebrew/bin/zsh`, `/usr/bin/zsh`), back up your existing shell config before upgrading, since Dots will now overwrite it.
+
 ## v2.0.0 (2025-08-01)
 
 - Dots no longer shows a confirmation prompt when syncing or cleaning dotfiles. You ran the command, you intended to do those actions.

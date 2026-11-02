@@ -7,7 +7,7 @@ DOTFILES_DIR="$HOME/.dotfiles" # Cannot be `~/.dots` as we will use this for int
 DOTS_CONFIG_FILE="$DOTFILES_DIR/dots-config.sh"
 
 # Dots required variables (DO NOT EDIT)
-DOTS_VERSION="v2.0.0"
+DOTS_VERSION="v3.0.0"
 HOSTNAME="$(hostname)" # Required for macOS as it's not set automatically like it is on Linux
 DOTS_HOME_DIR="$HOME/.dots"
 DOTS_DIR="$DOTFILES_DIR/dots/src"
@@ -23,12 +23,15 @@ _dots_check_dotfiles_dir() {
     fi
 }
 
-# Ensures the shell being used is supported
+# Ensures the shell being used is supported, matched by name so any install location works
 _dots_check_shell() {
-    if [ "$SHELL" != "/bin/zsh" ] && [ "$SHELL" != "/bin/bash" ] && [ "$SHELL" != "/bin/sh" ] && [ "$SHELL" != "/bin/dash" ] && [ "$SHELL" = "/bin/ksh" ]; then
+    case "${SHELL##*/}" in
+    zsh | bash | sh) ;;
+    *)
         echo "Dots doesn't support $SHELL."
         return 1
-    fi
+        ;;
+    esac
 }
 
 # Ensures the Dots config file exists
@@ -123,23 +126,90 @@ _dots_log_clean_step() {
     } 2>"$DOTS_HOME_DIR/clean.log"
 }
 
+### GIT ###
+
+# Run a git command in the dotfiles repo quietly, logging output to `~/.dots/sync.log`
+_dots_git() {
+    git -C "$DOTFILES_DIR" "$@" >>"$DOTS_HOME_DIR/sync.log" 2>&1
+}
+
+# Start a fresh git log for this run
+_dots_reset_sync_log() {
+    mkdir -p "$DOTS_HOME_DIR" && : >"$DOTS_HOME_DIR/sync.log"
+}
+
+# Succeeds if any of the given git state files exist (eg: `rebase-merge`), resolved with `--git-path` so worktrees and submodules work
+_dots_git_state() {
+    (cd "$DOTFILES_DIR" && for _dots_path in "$@"; do [ -e "$(git rev-parse --git-path "$_dots_path")" ] && exit 0; done && exit 1)
+}
+
+# Ensures no rebase or merge is already in progress, which is left untouched
+_dots_check_no_rebase() {
+    _dots_git_state rebase-merge rebase-apply MERGE_HEAD || return 0
+    echo "A rebase or merge is in progress in $DOTFILES_DIR, finish it first"
+    return 1
+}
+
+# Stage and commit local changes, if any
+_dots_commit() {
+    _dots_check_no_rebase || return 1
+    _dots_git add . || return 1
+    _dots_git diff --cached --quiet && return 0
+    _dots_git commit -m "Updated dotfiles"
+}
+
+# Pull with a rebase, a failed rebase is aborted so the repo is never left mid-rebase
+_dots_pull_rebase() {
+    _dots_git pull --rebase && return 0
+    _dots_git_state rebase-merge rebase-apply && _dots_git rebase --abort
+    return 1
+}
+
+# Update submodules that are already checked out to their recorded commits, skipping any that were never checked out
+_dots_update_submodules() {
+    # shellcheck disable=SC2016 # `$toplevel` and `$sm_path` are expanded by `git submodule foreach`
+    _dots_git submodule foreach --quiet --recursive 'git -C "$toplevel" submodule update -- "$sm_path"'
+}
+
+# Update submodules, then push even if that update failed so local commits still go up
+_dots_update_and_push() {
+    _dots_update_submodules || {
+        _dots_git push
+        return 1
+    }
+    _dots_git push
+}
+
 ### INTERFACES ###
 
 # Push Dotfiles up to the Git server
 dots_push() {
-    if _dots_check_dotfiles_dir; then
-        echo "Pushing dotfiles..."
-        git -C "$DOTFILES_DIR" add .
-        git -C "$DOTFILES_DIR" commit -m "Updated dotfiles"
-        git -C "$DOTFILES_DIR" push >/dev/null 2>&1 && echo "Dotfiles pushed!" || echo "Error pushing Dotfiles"
+    _dots_check_dotfiles_dir || return 1
+    _dots_reset_sync_log
+    echo "Pushing dotfiles..."
+    if _dots_commit && _dots_git push; then
+        echo "Dotfiles pushed!"
+    else
+        echo "Error pushing Dotfiles, see $DOTS_HOME_DIR/sync.log"
+        return 1
     fi
 }
 
 # Pull updates from the Dotfiles project
 dots_pull() {
-    if _dots_check_dotfiles_dir; then
-        echo "Pulling dotfiles..."
-        git -C "$DOTFILES_DIR" pull --rebase >/dev/null 2>&1 && echo "Dotfiles pulled!" || echo "Error pulling Dotfiles"
+    _dots_check_dotfiles_dir || return 1
+    _dots_reset_sync_log
+    _dots_check_no_rebase || return 1
+    if ! git -C "$DOTFILES_DIR" diff --quiet --ignore-submodules=dirty HEAD; then
+        echo "Uncommitted changes in $DOTFILES_DIR (including submodule updates), commit them with dots_push or dots_sync first"
+        return 1
+    fi
+    echo "Pulling dotfiles..."
+    if _dots_pull_rebase && _dots_update_submodules; then
+        echo "Dotfiles pulled!"
+    else
+        echo "Error pulling Dotfiles, see $DOTS_HOME_DIR/sync.log"
+        return 1
     fi
 }
 
@@ -174,11 +244,22 @@ dots_diff() {
 }
 
 # Syncs dotfiles from your local machine to and from your dotfiles repo
+# Commits local changes, rebases onto the remote, updates submodules, then pushes, stopping at the first failed git step (a failed submodule update still pushes)
+# Dotfiles are installed and sourced either way (eg: when offline)
 dots_sync() {
-    dots_pull
-    dots_push
-    dots_install
-    dots_source
+    _dots_check_dotfiles_dir || return 1
+    _dots_reset_sync_log
+    echo "Syncing dotfiles..."
+    if _dots_commit && _dots_pull_rebase && _dots_update_and_push; then
+        echo "Dotfiles synced!"
+        dots_install
+        dots_source
+    else
+        echo "Error syncing Dotfiles, see $DOTS_HOME_DIR/sync.log"
+        dots_install
+        dots_source
+        return 1
+    fi
 }
 
 # Sources the shell

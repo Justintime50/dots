@@ -18,13 +18,3 @@ jobs:
         env:
           SHFMT_OPTS: -i 4 -d
           SHELLCHECK_OPTS: -s sh
-      - name: Run sh-checker for dash
-        uses: luizm/action-sh-checker@master
-        env:
-          SHFMT_OPTS: -i 4 -d
-          SHELLCHECK_OPTS: -s dash
-      - name: Run sh-checker for ksh
-        uses: luizm/action-sh-checker@master
-        env:
-          SHFMT_OPTS: -i 4 -d
-          SHELLCHECK_OPTS: -s ksh
