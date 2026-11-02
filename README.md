@@ -23,12 +23,12 @@ Dots makes no assumptions as to how or where your dotfiles should be installed. 
 - Warns you when your Dotfiles are out of sync
 - Push, pull, install, and clean your Dotfiles
 - Setup your Dotfiles based on your own custom configuration
-- Support for `zsh`, `bash`, `sh`, `dash`, and `ksh` shells
+- Support for `zsh`, `bash`, and `sh` shells
 
 **Dots Init Message on Shell Start:**
 
 ```text
-################### Dots v2.0.0 ###################
+################### Dots v3.0.0 ###################
 Shell: /bin/zsh
 Hostname: mbp-justin
 
@@ -39,7 +39,7 @@ Dotfiles status:
 
 ## Install
 
-Dots will override your current Dotfiles, namely `~/.zshrc` for `zsh`, `~/.bash_profile` for `bash` and `~/.profile` for `sh`, `dash`, and `ksh` shells. Dots will create a blank shell config file and source your remaining files into it. If one of these files already exists, it's backed up first to `<file>.pre-dots` (eg: `~/.zshrc.pre-dots`), and later runs never overwrite that backup. Nothing is backed up when the file is missing, empty, written by Dots, or a symlink (which is replaced and its target left untouched). See [Configuration](#configuration) below for more details.
+Dots will override your current Dotfiles, namely `~/.zshrc` for `zsh`, `~/.bash_profile` for `bash` and `~/.profile` for `sh`. Dots will create a blank shell config file and source your remaining files into it. See [Configuration](#configuration) below for more details.
 
 To install Dots, simply drop it into your current Dotfiles project:
 
@@ -65,7 +65,7 @@ $HOME/.dotfiles/dots/src/install.sh
 Using Dots is simple. Make changes to your Dotfiles, then run any of the following commands.
 
 ```bash
-# Push Dotfile changes
+# Commit and push Dotfile changes
 dots_push
 
 # Pull new Dotfile changes

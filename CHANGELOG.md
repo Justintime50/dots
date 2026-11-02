@@ -1,18 +1,15 @@
 # CHANGELOG
 
-## v2.1.0 (2026-10-28)
+## v3.0.0 (2026-11-02)
 
-- `dots_sync` now commits local changes first, then pulls with a rebase, then pushes, stopping at the first failed step. It also refuses to run while a rebase is unresolved. Local work is never left uncommitted during a pull and nothing is pushed on top of a failed rebase
-- Git behavior is passed explicitly (`--rebase`) so syncing no longer depends on a user's git config, and submodules are updated to their recorded commits after each pull. Uncommitted changes (including submodule pointer bumps) make `dots_pull` fail instead of being stashed, while edits inside a submodule's own working tree are left alone
-- Git output for push, pull, and sync is now logged to `~/.dots/sync.log` instead of being discarded
+- **BREAKING:** Drops support for `dash` and `ksh` shells. Supported shells are now `zsh`, `bash`, and `sh`
+- **BREAKING:** Unsupported shells are now rejected. Previously a bad comparison rejected only `ksh` and let every other shell through
+- **BREAKING:** `dots_sync` now commits local changes first, then pulls with a rebase, then pushes, stopping at the first failed git step. Previously it pulled, then committed and pushed even if the pull failed. Dotfiles are still installed and sourced when a git step fails (eg: offline)
+- **BREAKING:** A pull that fails during a rebase (eg: a merge conflict) is now aborted, leaving your dotfiles as they were before the pull. Previously the rebase was left in progress for you to resolve
+- **BREAKING:** Git output for `dots_push`, `dots_pull`, and `dots_sync` (including commit output) is now logged to `~/.dots/sync.log` instead of printed or discarded
+- **BREAKING:** `dots_push`, `dots_pull`, and `dots_sync` now return a non-zero exit code on failure
+- **BREAKING:** Submodules are now updated to their recorded commits after each pull
 - Committing is skipped when there are no changes instead of erroring
-- `dots_push`, `dots_pull`, `dots_install`, `dots_clean`, and `dots_sync` now return a non-zero exit code on failure. `dots_sync` still installs and sources dotfiles when a git step fails (eg: offline), unless a rebase or merge conflict is unresolved
-- Supported shells (`zsh`, `bash`, `sh`, `dash`, and `ksh`) are now matched by name so they work from any install location (eg: `/opt/homebrew/bin/zsh`). Previously `ksh` was rejected by a bad comparison while unsupported shells were let through
-- Paths written to your shell config by `dots_install`, `dots_clean`, and the installer are now quoted, so Dots loads when `$HOME` contains a space, quote, or backslash
-- The installer, `dots_install`, and `dots_clean` now write your shell config the same way, and safely: the new file is written beside the old one and moved into place, so a failure leaves your existing shell config untouched
-- An existing shell config (eg: on a machine with existing dotfiles) is backed up to `<file>.pre-dots` before it's replaced, and that first backup is never overwritten by later runs. Nothing is backed up when the config is missing, empty, written by Dots, or a symlink. A symlinked shell config is replaced rather than written through, so the file it points to is left untouched
-- The installer now stops before touching your shell config if your shell is unsupported or your dotfiles or `dots-config.sh` are missing, and `dots_install` and `dots_clean` stop if the shell config can't be written
-- Detecting an unresolved rebase no longer requires git 2.31+
 
 ## v2.0.0 (2025-08-01)
 
