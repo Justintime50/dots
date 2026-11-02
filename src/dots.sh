@@ -138,8 +138,21 @@ _dots_reset_sync_log() {
     mkdir -p "$DOTS_HOME_DIR" && : >"$DOTS_HOME_DIR/sync.log"
 }
 
+# Succeeds if any of the given git state files exist (eg: `rebase-merge`), resolved with `--git-path` so worktrees and submodules work
+_dots_git_state() {
+    (cd "$DOTFILES_DIR" && for _dots_path in "$@"; do [ -e "$(git rev-parse --git-path "$_dots_path")" ] && exit 0; done && exit 1)
+}
+
+# Ensures no rebase or merge is already in progress, which is left untouched
+_dots_check_no_rebase() {
+    _dots_git_state rebase-merge rebase-apply MERGE_HEAD || return 0
+    echo "A rebase or merge is in progress in $DOTFILES_DIR, finish it first"
+    return 1
+}
+
 # Stage and commit local changes, if any
 _dots_commit() {
+    _dots_check_no_rebase || return 1
     _dots_git add . || return 1
     _dots_git diff --cached --quiet && return 0
     _dots_git commit -m "Updated dotfiles"
@@ -148,10 +161,10 @@ _dots_commit() {
 # Pull with a rebase and update submodules, a failed rebase is aborted so the repo is never left mid-rebase
 _dots_pull_rebase() {
     if ! _dots_git pull --rebase; then
-        _dots_git rebase --abort
+        _dots_git_state rebase-merge rebase-apply && _dots_git rebase --abort
         return 1
     fi
-    _dots_git submodule update --init --recursive
+    _dots_git submodule update --recursive
 }
 
 ### INTERFACES ###
@@ -173,6 +186,11 @@ dots_push() {
 dots_pull() {
     _dots_check_dotfiles_dir || return 1
     _dots_reset_sync_log
+    _dots_check_no_rebase || return 1
+    if ! git -C "$DOTFILES_DIR" diff --quiet --ignore-submodules=dirty HEAD; then
+        echo "Uncommitted changes in $DOTFILES_DIR (including submodule updates), commit them with dots_push or dots_sync first"
+        return 1
+    fi
     echo "Pulling dotfiles..."
     if _dots_pull_rebase; then
         echo "Dotfiles pulled!"

@@ -8,9 +8,11 @@
 - **BREAKING:** A pull that fails during a rebase (eg: a merge conflict) is now aborted, leaving your dotfiles as they were before the pull. Previously the rebase was left in progress for you to resolve
 - **BREAKING:** Git output for `dots_push`, `dots_pull`, and `dots_sync` (including commit output) is now logged to `~/.dots/sync.log` instead of printed or discarded
 - **BREAKING:** `dots_push`, `dots_pull`, and `dots_sync` now return a non-zero exit code on failure
-- **BREAKING:** Submodules are now updated to their recorded commits after each pull
+- **BREAKING:** Submodules that are already initialized are now updated to their recorded commits after each pull
+- **BREAKING:** `dots_sync`, `dots_push`, and `dots_pull` now stop without changing anything when a rebase or merge is already in progress. Previously local changes were committed on top of it
+- **BREAKING:** `dots_pull` now refuses to pull when there are uncommitted changes, including an updated submodule (eg: after `dots_update`). Commit them with `dots_push` or `dots_sync` first
 - Committing is skipped when there are no changes instead of erroring
-- Supported shells are now matched by name so they work from any install location (eg: `/opt/homebrew/bin/zsh`). Previously only `/bin` paths got a shell config
+- **BREAKING:** Supported shells are now matched by name so they work from any install location (eg: `/opt/homebrew/bin/zsh`). Previously only `/bin` paths got a shell config, so `dots_install` and `dots_sync` left `~/.zshrc` or `~/.bash_profile` alone for other shell paths. If your shell lives outside `/bin` (eg: `/opt/homebrew/bin/zsh`, `/usr/bin/zsh`), back up your existing shell config before upgrading, since Dots will now overwrite it.
 
 ## v2.0.0 (2025-08-01)
 
