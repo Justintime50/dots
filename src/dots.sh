@@ -158,13 +158,11 @@ _dots_commit() {
     _dots_git commit -m "Updated dotfiles"
 }
 
-# Pull with a rebase and update submodules, a failed rebase is aborted so the repo is never left mid-rebase
+# Pull with a rebase, a failed rebase is aborted so the repo is never left mid-rebase
 _dots_pull_rebase() {
-    if ! _dots_git pull --rebase; then
-        _dots_git_state rebase-merge rebase-apply && _dots_git rebase --abort
-        return 1
-    fi
-    _dots_git submodule update --recursive
+    _dots_git pull --rebase && return 0
+    _dots_git_state rebase-merge rebase-apply && _dots_git rebase --abort
+    return 1
 }
 
 ### INTERFACES ###
@@ -192,7 +190,7 @@ dots_pull() {
         return 1
     fi
     echo "Pulling dotfiles..."
-    if _dots_pull_rebase; then
+    if _dots_pull_rebase && _dots_git submodule update --recursive; then
         echo "Dotfiles pulled!"
     else
         echo "Error pulling Dotfiles, see $DOTS_HOME_DIR/sync.log"
@@ -231,13 +229,13 @@ dots_diff() {
 }
 
 # Syncs dotfiles from your local machine to and from your dotfiles repo
-# Commits local changes, rebases onto the remote, then pushes, stopping at the first failed git step
+# Commits local changes, rebases onto the remote, pushes, then updates submodules, stopping at the first failed git step
 # Dotfiles are installed and sourced either way (eg: when offline)
 dots_sync() {
     _dots_check_dotfiles_dir || return 1
     _dots_reset_sync_log
     echo "Syncing dotfiles..."
-    if _dots_commit && _dots_pull_rebase && _dots_git push; then
+    if _dots_commit && _dots_pull_rebase && _dots_git push && _dots_git submodule update --recursive; then
         echo "Dotfiles synced!"
         dots_install
         dots_source
