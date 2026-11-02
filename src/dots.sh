@@ -23,12 +23,15 @@ _dots_check_dotfiles_dir() {
     fi
 }
 
-# Ensures the shell being used is supported
+# Ensures the shell being used is supported, matched by name so any install location works
 _dots_check_shell() {
-    if [ "$SHELL" != "/bin/zsh" ] && [ "$SHELL" != "/bin/bash" ] && [ "$SHELL" != "/bin/sh" ]; then
+    case "${SHELL##*/}" in
+    zsh | bash | sh) ;;
+    *)
         echo "Dots doesn't support $SHELL."
         return 1
-    fi
+        ;;
+    esac
 }
 
 # Ensures the Dots config file exists

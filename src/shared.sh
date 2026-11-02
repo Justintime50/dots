@@ -4,11 +4,9 @@
 
 # Sets the SHELL_CONFIG_FILE variable based on the current shell in use
 _dots_set_shell_config_file() {
-    if [ "$SHELL" = "/bin/zsh" ]; then
-        SHELL_CONFIG_FILE="$HOME/.zshrc"
-    elif [ "$SHELL" = "/bin/bash" ]; then
-        SHELL_CONFIG_FILE="$HOME/.bash_profile"
-    elif [ "$SHELL" = "/bin/sh" ]; then
-        SHELL_CONFIG_FILE="$HOME/.profile"
-    fi
+    case "${SHELL##*/}" in
+    zsh) SHELL_CONFIG_FILE="$HOME/.zshrc" ;;
+    bash) SHELL_CONFIG_FILE="$HOME/.bash_profile" ;;
+    sh) SHELL_CONFIG_FILE="$HOME/.profile" ;;
+    esac
 }

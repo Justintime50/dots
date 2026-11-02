@@ -10,6 +10,7 @@
 - **BREAKING:** `dots_push`, `dots_pull`, and `dots_sync` now return a non-zero exit code on failure
 - **BREAKING:** Submodules are now updated to their recorded commits after each pull
 - Committing is skipped when there are no changes instead of erroring
+- Supported shells are now matched by name so they work from any install location (eg: `/opt/homebrew/bin/zsh`). Previously only `/bin` paths got a shell config
 
 ## v2.0.0 (2025-08-01)
 
