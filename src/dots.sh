@@ -165,6 +165,20 @@ _dots_pull_rebase() {
     return 1
 }
 
+# Update submodules that are already checked out to their recorded commits, skipping any that were never checked out
+_dots_update_submodules() {
+    _dots_git submodule foreach --quiet --recursive 'git -C "$toplevel" submodule update -- "$sm_path"'
+}
+
+# Update submodules, then push even if that update failed so local commits still go up
+_dots_update_and_push() {
+    _dots_update_submodules || {
+        _dots_git push
+        return 1
+    }
+    _dots_git push
+}
+
 ### INTERFACES ###
 
 # Push Dotfiles up to the Git server
@@ -190,7 +204,7 @@ dots_pull() {
         return 1
     fi
     echo "Pulling dotfiles..."
-    if _dots_pull_rebase && _dots_git submodule update --recursive; then
+    if _dots_pull_rebase && _dots_update_submodules; then
         echo "Dotfiles pulled!"
     else
         echo "Error pulling Dotfiles, see $DOTS_HOME_DIR/sync.log"
@@ -229,13 +243,13 @@ dots_diff() {
 }
 
 # Syncs dotfiles from your local machine to and from your dotfiles repo
-# Commits local changes, rebases onto the remote, pushes, then updates submodules, stopping at the first failed git step
+# Commits local changes, rebases onto the remote, updates submodules, then pushes, stopping at the first failed git step (a failed submodule update still pushes)
 # Dotfiles are installed and sourced either way (eg: when offline)
 dots_sync() {
     _dots_check_dotfiles_dir || return 1
     _dots_reset_sync_log
     echo "Syncing dotfiles..."
-    if _dots_commit && _dots_pull_rebase && _dots_git push && _dots_git submodule update --recursive; then
+    if _dots_commit && _dots_pull_rebase && _dots_update_and_push; then
         echo "Dotfiles synced!"
         dots_install
         dots_source

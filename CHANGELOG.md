@@ -8,7 +8,7 @@
 - **BREAKING:** A pull that fails during a rebase (eg: a merge conflict) is now aborted, leaving your dotfiles as they were before the pull. Previously the rebase was left in progress for you to resolve
 - **BREAKING:** Git output for `dots_push`, `dots_pull`, and `dots_sync` (including commit output) is now logged to `~/.dots/sync.log` instead of printed or discarded
 - **BREAKING:** `dots_push`, `dots_pull`, and `dots_sync` now return a non-zero exit code on failure
-- **BREAKING:** Submodules are now updated to their recorded commits after each pull (after the push for `dots_sync`, so a failed submodule update doesn't block it). Submodules that were never set up are skipped unless your dotfiles were cloned with `--recurse-submodules`
+- **BREAKING:** Submodules that are already checked out are now updated to their recorded commits after each pull. Submodules that were never checked out are skipped, and a failed submodule update doesn't block `dots_sync` from pushing
 - **BREAKING:** `dots_sync`, `dots_push`, and `dots_pull` now stop without changing anything when a rebase or merge is already in progress. Previously local changes were committed on top of it
 - **BREAKING:** `dots_pull` now refuses to pull when there are uncommitted changes, including an updated submodule (eg: after `dots_update`). Commit them with `dots_push` or `dots_sync` first
 - Committing is skipped when there are no changes instead of erroring
