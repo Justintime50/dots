@@ -167,6 +167,7 @@ _dots_pull_rebase() {
 
 # Update submodules that are already checked out to their recorded commits, skipping any that were never checked out
 _dots_update_submodules() {
+    # shellcheck disable=SC2016 # `$toplevel` and `$sm_path` are expanded by `git submodule foreach`
     _dots_git submodule foreach --quiet --recursive 'git -C "$toplevel" submodule update -- "$sm_path"'
 }
 
